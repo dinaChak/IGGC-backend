@@ -1,0 +1,16 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "IGGC RESTful API server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "IGGC",
+    "RESTful",
+    "API"
+  ],
+  "author": "Dinabandhu Chakraborty",
+  "license": "ISC"
+}
