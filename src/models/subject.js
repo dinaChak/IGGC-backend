@@ -1,27 +1,26 @@
-const { Schema, model } = require('mongoose');
+const mongoose = require('mongoose');
 
-const SubjectSchema = new Schema({
+const SubjectSchema = new mongoose.Schema({
   title: {
     type: String,
     minlength: 1,
     required: true
-  },
-  branch: {
-    type: String,
-    require: true,
-    minlength: 1,
   },
   code: {
     type: String,
     required: true,
     minlength: 1
   },
+  branch: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Branch'
+  },
   semester: {
     type: Number,
-    required: true
+    enum: [1,2,3,4,5,6]
   }
 });
 
-const Subject = model('Subject', SubjectSchema);
+const Subject = mongoose.model('Subject', SubjectSchema);
 
 module.exports = { Subject };

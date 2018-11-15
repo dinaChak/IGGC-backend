@@ -1,41 +1,72 @@
-const {
-  Schema,
-  model
-} = require('mongoose');
+const mongoose = require('mongoose');
 
-const SemesterSchema = new Schema({
+const SemesterSchema = new mongoose.Schema({
   number: Number,
-  internals: [{
-    number: Number,
-    marks: [{
+  started: {
+    type: Date,
+    required: true,
+    default: Date.now
+  },
+  fees: {
+    type: String,
+    enum: ['paid', 'due'],
+    default: 'due'
+  },
+  verification: {
+    type: String,
+    enum: ['verified', 'processing', 'unverified'],
+    default: 'unverified'
+  },
+  internal: [{
+    number: {
+      type: Number,
+      enum: [1, 2, 3],
+      required: true
+    },
+    performance: [{
       subject: {
-        type: String,
-        minlength: 1
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Subject'
+      },
+      max: {
+        type: Number,
+        default: 20,
       },
       mark: Number,
-      result: String,
-    }]
+      result: {
+        type: String,
+        required: true,
+        enum: ['pass', 'fail', 'absent']
+      }
+    }],
+
   }],
   external: {
-    marks: [{
+    performance: [{
       subject: {
-        type: String,
-        minlength: 1
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Subject'
+      },
+      max: {
+        type: Number,
+        default: 80
       },
       mark: Number,
-      result: String,
-    }],
+    }, ],
     result: {
-      type: String
-    },
-    remark: String
+      type: String,
+      required: true
+    }
   },
   student: {
-    type: Schema.Types.ObjectId,
-    ref: 'Student'
+    type: mongoose.Schema.ObjectId,
+    ref: 'Student',
+    required: true
   }
 });
 
-const Semester = model('Semester', SemesterSchema);
+const Semester = mongoose.model('Semester', SemesterSchema);
 
-module.exports = { Semester };
+module.exports = {
+  Semester
+};

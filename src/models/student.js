@@ -39,7 +39,8 @@ const StudentSchema = new mongoose.Schema({
     required: true
   },
   branch: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Branch',
     required: true
   },
   rollNumber: {
@@ -48,10 +49,6 @@ const StudentSchema = new mongoose.Schema({
   profileImage: {
     type: String
   },
-  fees: {
-    
-  },
-
   created: {
     type: Date,
     default: Date.now()
