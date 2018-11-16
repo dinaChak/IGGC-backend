@@ -7,7 +7,7 @@ const {
 const {
   Branch
 } = require('../models/branch');
-const { comparePassword } = require('../utilities/authentication');
+const { comparePassword } = require('../utilities/compare_password');
 
 // student registration
 const registrationController = async (req, res) => {
