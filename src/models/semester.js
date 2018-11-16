@@ -13,9 +13,18 @@ const SemesterSchema = new mongoose.Schema({
     default: 'due'
   },
   verification: {
-    type: String,
-    enum: ['verified', 'processing', 'unverified'],
-    default: 'unverified'
+    status: {
+      type: String,
+      enum: ['verified', 'processing', 'unverified'],
+      default: 'unverified'
+    },
+    documents: [
+      {
+        url: {
+          type: String
+        }
+      }
+    ]
   },
   internal: [{
     number: {
