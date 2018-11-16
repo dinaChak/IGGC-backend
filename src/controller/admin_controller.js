@@ -1,6 +1,6 @@
 const { Branch } = require('../models/branch');
 
-const createBranch = async (req, res) => {
+const createBranchController = async (req, res) => {
   const { title } = req.body;
 
   try {
@@ -16,4 +16,4 @@ const createBranch = async (req, res) => {
 }
 
 
-module.exports = { createBranch };
+module.exports = { createBranchController };

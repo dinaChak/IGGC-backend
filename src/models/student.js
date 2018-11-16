@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const { isEmail }  = require('validator');
 const bcrypt = require('bcryptjs');
+const _ = require('lodash');
 
 const StudentSchema = new mongoose.Schema({
   email: {
@@ -56,6 +57,13 @@ const StudentSchema = new mongoose.Schema({
   }
 });
 
+StudentSchema.methods.toJSON = function () {
+  const student = this;
+  const studentObject = student.toObject();
+  
+  return _.omit(studentObject, ['password', '__v']);
+}
+
 StudentSchema.pre('save', function(next) {
   const student = this;
 
@@ -70,6 +78,8 @@ StudentSchema.pre('save', function(next) {
     next();
   }
 });
+
+
 
 const Student = mongoose.model('Student', StudentSchema);
 

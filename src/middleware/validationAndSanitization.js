@@ -5,14 +5,23 @@ const {
   sanitizeBody
 } = require('express-validator/filter');
 const {
+  validationResult
+} = require('express-validator/check');
+const {
   Types
 } = require('mongoose');
 
 const {
   Student
 } = require('../models/student');
+const {
+  Branch
+} = require('../models/branch');
 
-
+/**
+ * Student
+ */
+// student registration validation and sanitization
 const studentRegistrationValidator = [
   // validation
   body('email')
@@ -100,7 +109,83 @@ const studentRegistrationValidator = [
   sanitizeBody('phoneNumber')
   .trim()
   .escape(),
-]
+  (req, res, next) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) return res.status(422).send({
+      errors: errors.array()
+    });
+    next();
+  }
+];
 
 
-module.exports = { studentRegistrationValidator };
+// student login route validation and sanitization
+const studentLoginValidation = [
+  // validation
+  body('email')
+  .trim()
+  .isEmail().withMessage("Invalid E-mail address"),
+  body('password')
+  .isLength({
+    min: 6
+  }).withMessage('must be at least 5 chars long')
+  .matches(/\d/).withMessage('must contain a number'),
+
+  // sanitization,
+  sanitizeBody('email')
+  .trim()
+  .normalizeEmail(),
+  sanitizeBody('password')
+  .trim()
+  .escape(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) return res.status(422).send({
+      errors: errors.array()
+    });
+    next();
+  }
+];
+
+/**
+ * ADMIN
+ */
+// Create new branch validation and sanitization
+const createBranchValidation = [
+  // validation
+  body('title')
+  .trim()
+  .isLength({
+    min: 1
+  }).withMessage('title should not be empty')
+  .custom((value) => {
+    return Branch.findOne({
+        title: value
+      })
+      .then((branch) => {
+        if (branch) return Promise.reject('Branch exists');
+      });
+  }),
+
+  // sanitization
+  sanitizeBody('title')
+  .trim()
+  .escape(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).send({
+      errors: errors.array()
+    });
+    next();
+  }
+];
+
+
+
+module.exports = {
+  studentRegistrationValidator,
+  studentLoginValidation,
+  createBranchValidation
+};

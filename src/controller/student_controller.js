@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const {  validationResult } = require('express-validator/check');
+const jwt = require('jsonwebtoken');
 
 const {
   Student
@@ -7,26 +7,46 @@ const {
 const {
   Branch
 } = require('../models/branch');
+const { comparePassword } = require('../utilities/authentication');
 
-
+// student registration
 const registrationController = async (req, res) => {
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) return res.status(422).send({ errors: errors.array() });
-
   const body = _.pick(req.body, ['email', 'password', 'name', 'dateOfBirth', 'gender', 'branch', 'phoneNumber']);
   try {
     const student = new Student(body);
     await student.save();
     res.send();
   } catch (error) {
-    console.error(error);
     res.status(500).send()
   }
 };
 
 
-const getBranches = async (req, res) => {
+// student login
+const loginController = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const student = await Student.findOne({ email });
+    if (!student) throw new Error("Invalid email");
+    await comparePassword(password, student.password);
+    
+
+    const token = jwt.sign({ _id: student._id }, process.env.JWT_SECRET, { expiresIn: '7d' }); 
+
+    res.header('x-auth', token).send(student);  
+  } catch (error) {
+   if (error.message.includes("Invalid"))
+    return res.status(401).send({
+      errors: [{
+        msg: "Invalid email or password"
+      }]
+    });
+  }
+  res.status(500).send();
+}
+
+// get available branches
+const getBranchesController = async (req, res) => {
   try {
     const branches = await Branch.find();
     res.send({
@@ -41,5 +61,6 @@ const getBranches = async (req, res) => {
 
 module.exports = {
   registrationController,
-  getBranches
+  getBranchesController,
+  loginController
 }

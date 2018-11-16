@@ -1,10 +1,11 @@
 const { Router } = require('express');
 
-const { createBranch } = require('../controller/admin_controller');
+const { createBranchController } = require('../controller/admin_controller');
+const { createBranchValidation } = require('../middleware/validationAndSanitization');
 
 const router = Router();
 
-
-router.post('/branch/create', createBranch);
+// POST create new Branch
+router.post('/branch/create', createBranchValidation, createBranchController);
 
 module.exports = router;
