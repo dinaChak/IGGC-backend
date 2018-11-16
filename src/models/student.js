@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const { isEmail }  = require('validator');
+const bcrypt = require('bcryptjs');
 
 const StudentSchema = new mongoose.Schema({
   email: {
@@ -9,7 +10,7 @@ const StudentSchema = new mongoose.Schema({
     unique: true,
     validate: {
       validator: isEmail,
-      message: '{value} is not a valid email'
+      message: props => `${props.value} is not a valid email`
     }
   },
   password: {
@@ -23,7 +24,7 @@ const StudentSchema = new mongoose.Schema({
     required: true,
     minlength: 1,
   },
-  dataOfBirth: {
+  dateOfBirth: {
     type: Date,
     required: true,
   },
@@ -33,7 +34,7 @@ const StudentSchema = new mongoose.Schema({
     required: true
   },
   phoneNumber: {
-    type: Number,
+    type: String,
     minlength: 10,
     maxlength: 10,
     required: true
@@ -52,6 +53,21 @@ const StudentSchema = new mongoose.Schema({
   created: {
     type: Date,
     default: Date.now()
+  }
+});
+
+StudentSchema.pre('save', function(next) {
+  const student = this;
+
+  if (student.isModified('password')) {
+    bcrypt.genSalt(12, (err, salt) => {
+      bcrypt.hash(student.password, salt, (err, hash) => {
+        student.password = hash;
+        next()
+      });
+    });
+  } else {
+    next();
   }
 });
 
