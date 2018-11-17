@@ -34,6 +34,21 @@ describe('GET /', function () {
   });
 });
 
+describe('BRANCH', function() {
+  describe('GET /branch', function () {
+    it('should return all branches', async () => {
+      try {
+        const res = await chai.request(app).get('/branch');
+        expect(res).to.have.status(200);
+        expect(res.body.branches).to.be.a('array');
+        expect(res.body.branches.length).to.equal(branches.length);
+      } catch (error) {
+        throw error;
+      }
+    });
+  });
+});
+
 // admin
 describe('ADMIN', function () {
   describe('POST /admin/branch/create', function () {
@@ -101,18 +116,7 @@ describe('ADMIN', function () {
 
 // Students
 describe('STUDENT', function () {
-  describe('GET /student/branches', function () {
-    it('should return all branches', async () => {
-      try {
-        const res = await chai.request(app).get('/student/branches');
-        expect(res).to.have.status(200);
-        expect(res.body.branches).to.be.a('array');
-        expect(res.body.branches.length).to.equal(branches.length);
-      } catch (error) {
-        throw error;
-      }
-    });
-  });
+
 
   describe('POST /student/registration', function() {
     it('should register a new student', async () => {

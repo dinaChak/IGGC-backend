@@ -4,9 +4,7 @@ const jwt = require('jsonwebtoken');
 const {
   Student
 } = require('../models/student');
-const {
-  Branch
-} = require('../models/branch');
+
 const { comparePassword } = require('../utilities/compare_password');
 
 // student registration
@@ -45,22 +43,10 @@ const loginController = async (req, res) => {
   res.status(500).send();
 }
 
-// get available branches
-const getBranchesController = async (req, res) => {
-  try {
-    const branches = await Branch.find();
-    res.send({
-      branches
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).send();
-  }
-}
+
 
 
 module.exports = {
   registrationController,
-  getBranchesController,
   loginController
 }
