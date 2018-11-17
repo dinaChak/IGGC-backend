@@ -1,5 +1,6 @@
-const mongoose = require('mongoose')
-const { isEmail }  = require('validator');
+// @ts-nocheck
+const mongoose = require('mongoose');
+const { isEmail } = require('validator');
 const bcrypt = require('bcryptjs');
 const _ = require('lodash');
 
@@ -11,13 +12,13 @@ const StudentSchema = new mongoose.Schema({
     unique: true,
     validate: {
       validator: isEmail,
-      message: props => `${props.value} is not a valid email`
-    }
+      message: props => `${props.value} is not a valid email`,
+    },
   },
   password: {
     type: String,
     minlength: 6,
-    required: true
+    required: true,
   },
   name: {
     type: String,
@@ -32,53 +33,53 @@ const StudentSchema = new mongoose.Schema({
   gender: {
     type: String,
     enum: ['male', 'female', 'other'],
-    required: true
+    required: true,
   },
   phoneNumber: {
     type: String,
     minlength: 10,
     maxlength: 10,
-    required: true
+    required: true,
   },
   branch: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Branch',
-    required: true
+    required: true,
   },
   rollNumber: {
-    type: String
+    type: String,
   },
   profileImage: {
-    type: String
+    type: String,
   },
   created: {
     type: Date,
-    default: Date.now()
-  }
+    default: Date.now(),
+  },
 });
 
-StudentSchema.methods.toJSON = function () {
+StudentSchema.methods.toJSON = function toJSON() {
   const student = this;
   const studentObject = student.toObject();
-  
-  return _.omit(studentObject, ['password', '__v']);
-}
 
-StudentSchema.pre('save', function(next) {
+  return _.omit(studentObject, ['password', '__v']);
+};
+
+StudentSchema.pre('save', function hashPassword(next) {
   const student = this;
 
   if (student.isModified('password')) {
     bcrypt.genSalt(12, (err, salt) => {
+      // eslint-disable-next-line
       bcrypt.hash(student.password, salt, (err, hash) => {
         student.password = hash;
-        next()
+        next();
       });
     });
   } else {
     next();
   }
 });
-
 
 
 const Student = mongoose.model('Student', StudentSchema);

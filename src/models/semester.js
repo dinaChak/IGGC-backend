@@ -1,3 +1,4 @@
+// @ts-check
 const mongoose = require('mongoose');
 
 const SemesterSchema = new mongoose.Schema({
@@ -5,37 +6,37 @@ const SemesterSchema = new mongoose.Schema({
   started: {
     type: Date,
     required: true,
-    default: Date.now
+    default: Date.now,
   },
   fees: {
     type: String,
     enum: ['paid', 'due'],
-    default: 'due'
+    default: 'due',
   },
   verification: {
     status: {
       type: String,
       enum: ['verified', 'processing', 'unverified'],
-      default: 'unverified'
+      default: 'unverified',
     },
     documents: [
       {
         url: {
-          type: String
-        }
-      }
-    ]
+          type: String,
+        },
+      },
+    ],
   },
   internal: [{
     number: {
       type: Number,
       enum: [1, 2, 3],
-      required: true
+      required: true,
     },
     performance: [{
       subject: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Subject'
+        ref: 'Subject',
       },
       max: {
         type: Number,
@@ -45,8 +46,8 @@ const SemesterSchema = new mongoose.Schema({
       result: {
         type: String,
         required: true,
-        enum: ['pass', 'fail', 'absent']
-      }
+        enum: ['pass', 'fail', 'absent'],
+      },
     }],
 
   }],
@@ -54,28 +55,28 @@ const SemesterSchema = new mongoose.Schema({
     performance: [{
       subject: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Subject'
+        ref: 'Subject',
       },
       max: {
         type: Number,
-        default: 80
+        default: 80,
       },
       mark: Number,
-    }, ],
+    }],
     result: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   student: {
-    type: mongoose.Schema.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'Student',
-    required: true
-  }
+    required: true,
+  },
 });
 
 const Semester = mongoose.model('Semester', SemesterSchema);
 
 module.exports = {
-  Semester
+  Semester,
 };

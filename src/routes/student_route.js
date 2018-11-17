@@ -1,3 +1,4 @@
+// @ts-check
 const { Router } = require('express');
 
 const { registrationController, loginController } = require('../controller/student_controller');
@@ -11,7 +12,6 @@ router.post('/registration', studentRegistrationValidator, registrationControlle
 
 // POST student login.
 router.post('/login', studentLoginValidation, loginController);
-
 
 
 module.exports = router;

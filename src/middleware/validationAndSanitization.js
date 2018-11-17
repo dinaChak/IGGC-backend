@@ -1,21 +1,22 @@
+// @ts-check
 const {
-  body
+  body,
 } = require('express-validator/check');
 const {
-  sanitizeBody
+  sanitizeBody,
 } = require('express-validator/filter');
 const {
-  validationResult
+  validationResult,
 } = require('express-validator/check');
 const {
-  Types
+  Types,
 } = require('mongoose');
 
 const {
-  Student
+  Student,
 } = require('../models/student');
 const {
-  Branch
+  Branch,
 } = require('../models/branch');
 
 /**
@@ -25,98 +26,102 @@ const {
 const studentRegistrationValidator = [
   // validation
   body('email')
-  .trim()
-  .isEmail().withMessage("Invalid email")
-  .custom((value) => {
-    return Student.findOne({
-      email: value
+    .trim()
+    .isEmail().withMessage('Invalid email')
+    .custom(value => Student.findOne({
+      email: value,
+      // eslint-disable-next-line
     }).then((student) => {
+      // eslint-disable-next-line
       if (student) return Promise.reject('E-mail already in use');
-    })
-  }),
+    })),
   body('password')
-  .isLength({
-    min: 6
-  }).withMessage('must be at least 5 chars long')
-  .matches(/\d/).withMessage('must contain a number'),
+    .isLength({
+      min: 6,
+    }).withMessage('must be at least 5 chars long')
+    .matches(/\d/)
+    .withMessage('must contain a number'),
   body('confirmPassword')
-  .custom((value, {
-    req
-  }) => {
-    if (value !== req.body.password) {
-      throw new Error('Password confirmation does not match password');
-    } else {
-      return true;
-    }
-  }),
+    .custom((value, {
+      req,
+    }) => {
+      if (value !== req.body.password) {
+        throw new Error('Password confirmation does not match password');
+      } else {
+        return true;
+      }
+    }),
   body('name')
-  .isLength({
-    min: 1
-  }).withMessage('must not be empty')
-  .trim()
-  .escape(),
+    .isLength({
+      min: 1,
+    }).withMessage('must not be empty')
+    .trim()
+    .escape(),
   body('dateOfBirth')
-  .isISO8601(),
+    .isISO8601(),
   body('gender')
-  .custom(value => {
-    if (!['male', 'female', 'other'].includes(value.trim().toLowerCase())) {
-      throw new Error('gender must be male, female or other');
-    } else {
-      return true;
-    }
-  }),
+    .custom((value) => {
+      if (!['male', 'female', 'other'].includes(value.trim().toLowerCase())) {
+        throw new Error('gender must be male, female or other');
+      } else {
+        return true;
+      }
+    }),
   body('branch')
-  .trim()
-  .isLength({
-    min: 1
-  }).withMessage("branch is required")
-  .custom(value => {
-    if (value && !Types.ObjectId.isValid(value.trim())) {
-      throw new Error('Invalid branch');
-    } else {
-      return true;
-    }
-  }),
+    .trim()
+    .isLength({
+      min: 1,
+    }).withMessage('branch is required')
+    .custom((value) => {
+      if (value && !Types.ObjectId.isValid(value.trim())) {
+        throw new Error('Invalid branch');
+      } else {
+        return true;
+      }
+    }),
   body('phoneNumber')
-  .trim()
-  .isNumeric().withMessage("phone number should only contain number")
-  .isLength({
-    min: 10,
-    max: 10
-  }).withMessage("phone number must be 10 digits"),
+    .trim()
+    .isNumeric().withMessage('phone number should only contain number')
+    .isLength({
+      min: 10,
+      max: 10,
+    })
+    .withMessage('phone number must be 10 digits'),
 
   // sanitization
   sanitizeBody('email')
-  .trim()
-  .normalizeEmail(),
+    .trim()
+    .normalizeEmail(),
   sanitizeBody('password')
-  .trim()
-  .escape(),
+    .trim()
+    .escape(),
   sanitizeBody('confirmPassword')
-  .trim()
-  .escape(),
+    .trim()
+    .escape(),
   sanitizeBody('name')
-  .trim()
-  .escape(),
+    .trim()
+    .escape(),
   sanitizeBody('dateOfBirth')
-  .toDate(),
+    .toDate(),
   sanitizeBody('gender')
-  .trim()
-  .escape(),
+    .trim()
+    .escape(),
   sanitizeBody('branch')
-  .trim()
-  .escape(),
+    .trim()
+    .escape(),
   sanitizeBody('phoneNumber')
-  .trim()
-  .escape(),
+    .trim()
+    .escape(),
   (req, res, next) => {
     const errors = validationResult(req);
 
-    if (!errors.isEmpty()) return res.status(422).send({
-      errors: errors.array()
-    });
-    next();
-  }
+    if (!errors.isEmpty()) {
+      return res.status(422).send({
+        errors: errors.array(),
+      });
+    }
+    return next();
+  },
 ];
 
 
@@ -124,29 +129,32 @@ const studentRegistrationValidator = [
 const studentLoginValidation = [
   // validation
   body('email')
-  .trim()
-  .isEmail().withMessage("Invalid E-mail address"),
+    .trim()
+    .isEmail().withMessage('Invalid E-mail address'),
   body('password')
-  .isLength({
-    min: 6
-  }).withMessage('must be at least 5 chars long')
-  .matches(/\d/).withMessage('must contain a number'),
+    .isLength({
+      min: 6,
+    }).withMessage('must be at least 5 chars long')
+    .matches(/\d/)
+    .withMessage('must contain a number'),
 
   // sanitization,
   sanitizeBody('email')
-  .trim()
-  .normalizeEmail(),
+    .trim()
+    .normalizeEmail(),
   sanitizeBody('password')
-  .trim()
-  .escape(),
+    .trim()
+    .escape(),
   (req, res, next) => {
     const errors = validationResult(req);
 
-    if (!errors.isEmpty()) return res.status(422).send({
-      errors: errors.array()
-    });
-    next();
-  }
+    if (!errors.isEmpty()) {
+      return res.status(422).send({
+        errors: errors.array(),
+      });
+    }
+    return next();
+  },
 ];
 
 /**
@@ -156,36 +164,37 @@ const studentLoginValidation = [
 const createBranchValidation = [
   // validation
   body('title')
-  .trim()
-  .isLength({
-    min: 1
-  }).withMessage('title should not be empty')
-  .custom((value) => {
-    return Branch.findOne({
-        title: value
-      })
+    .trim()
+    .isLength({
+      min: 1,
+    }).withMessage('title should not be empty')
+    .custom(value => Branch.findOne({
+      title: value,
+    })
+      // eslint-disable-next-line
       .then((branch) => {
+      // eslint-disable-next-line
         if (branch) return Promise.reject('Branch exists');
-      });
-  }),
+      })),
 
   // sanitization
   sanitizeBody('title')
-  .trim()
-  .escape(),
+    .trim()
+    .escape(),
   (req, res, next) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).send({
-      errors: errors.array()
-    });
-    next();
-  }
+    if (!errors.isEmpty()) {
+      return res.status(422).send({
+        errors: errors.array(),
+      });
+    }
+    return next();
+  },
 ];
-
 
 
 module.exports = {
   studentRegistrationValidator,
   studentLoginValidation,
-  createBranchValidation
+  createBranchValidation,
 };

@@ -1,3 +1,4 @@
+// @ts-check
 const { Router } = require('express');
 
 const { getBranchesController } = require('../controller/branch_controller');

@@ -1,24 +1,25 @@
+// @ts-check
 const mongoose = require('mongoose');
 
 const AdmissionSchema = new mongoose.Schema({
   openingDate: {
     type: Date,
-    required: true
+    required: true,
   },
   closingDate: {
     type: Date,
-    required: true
+    required: true,
   },
   status: {
     type: Boolean,
     required: true,
-    default: false
+    default: false,
   },
   semester: {
     type: String,
     enum: ['even', 'odd'],
-    required: true
-  }
+    required: true,
+  },
 });
 
 const Admission = mongoose.model('Admission', AdmissionSchema);

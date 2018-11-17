@@ -1,8 +1,9 @@
+// @ts-check
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 
-require('dotenv').config()
+require('dotenv').config();
 require('./db/mongoose');
 const studentRoutes = require('./routes/student_route');
 const adminRoutes = require('./routes/admin_route');
@@ -21,10 +22,10 @@ if (process.env.NODE_ENV !== 'test') {
 
 
 // routes
-app.get("/", (req, res) => {
+app.get('/', (req, res) => {
   res.json({
-    message: 'Hello World!'
-  })
+    message: 'Hello World!',
+  });
 });
 
 app.use('/student', studentRoutes);

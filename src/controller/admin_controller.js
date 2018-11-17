@@ -1,3 +1,4 @@
+// @ts-check
 const { Branch } = require('../models/branch');
 
 const createBranchController = async (req, res) => {
@@ -7,12 +8,12 @@ const createBranchController = async (req, res) => {
     const branch = new Branch({ title });
     await branch.save();
     res.json({
-      message: 'success'
+      message: 'success',
     });
   } catch (error) {
     res.status(500).send();
   }
-}
+};
 
 
 module.exports = { createBranchController };

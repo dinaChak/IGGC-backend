@@ -1,34 +1,36 @@
+// @ts-check
+/* eslint-disable */
 const {
-  Types
+  Types,
 } = require('mongoose');
 const faker = require('faker');
 
 const {
-  Branch
+  Branch,
 } = require('../../models/branch');
 const {
-  Student
+  Student,
 } = require('../../models/student');
 
 
 const branches = [{
-    title: 'arts',
-    _id: Types.ObjectId()
-  },
-  {
-    title: 'commerce',
-    _id: Types.ObjectId()
-  },
-  {
-    title: 'science',
-    _id: Types.ObjectId()
-  }
+  title: 'arts',
+  _id: Types.ObjectId(),
+},
+{
+  title: 'commerce',
+  _id: Types.ObjectId(),
+},
+{
+  title: 'science',
+  _id: Types.ObjectId(),
+},
 ];
 
 
 const populateBranches = async () => {
   try {
-    await Branch.deleteMany({});
+    // await Branch.deleteMany({});
     await Branch.insertMany(branches);
   } catch (error) {
     throw error;
@@ -38,33 +40,36 @@ const populateBranches = async () => {
 
 const students = [
   {
-  _id: Types.ObjectId(),
-  email: 'test1@example.com',
-  password: faker.internet.password(),
-  name: `${faker.name.firstName()} ${faker.name.lastName()}`,
-  dateOfBirth: faker.date.past(),
-  gender: Math.random() < 0.5 ? 'male' : 'female',
-  phoneNumber:  Array(10).fill().map(_ => Math.floor(Math.random() * 9)).join(''),
-  branch: branches[Math.floor(Math.random() * branches.length)]["_id"]
-},
-{
-  _id: Types.ObjectId(),
-  email: 'test2@example.com',
-  password: faker.internet.password(),
-  name: `${faker.name.firstName()} ${faker.name.lastName()}`,
-  dateOfBirth: faker.date.past(),
-  gender: Math.random() < 0.5 ? 'male' : 'female',
-  phoneNumber:  Array(10).fill().map(_ => Math.floor(Math.random() * 9)).join(''),
-  branch: branches[Math.floor(Math.random() * branches.length)]["_id"]
-}
+    _id: Types.ObjectId(),
+    email: 'test1@example.com',
+    password: faker.internet.password(),
+    name: `${faker.name.firstName()} ${faker.name.lastName()}`,
+    dateOfBirth: faker.date.past(),
+    gender: Math.random() < 0.5 ? 'male' : 'female',
+    phoneNumber: Array(10).fill(0).map(_ => Math.floor(Math.random() * 9)).join(''),
+    // eslint-disable-next-line
+    branch: branches[Math.floor(Math.random() * branches.length)]._id,
+  },
+  {
+    _id: Types.ObjectId(),
+    email: 'test2@example.com',
+    password: faker.internet.password(),
+    name: `${faker.name.firstName()} ${faker.name.lastName()}`,
+    dateOfBirth: faker.date.past(),
+    gender: Math.random() < 0.5 ? 'male' : 'female',
+    phoneNumber: Array(10).fill(0).map(_ => Math.floor(Math.random() * 9)).join(''),
+    // eslint-disable-next-line
+    branch: branches[Math.floor(Math.random() * branches.length)]._id,
+  },
 ];
 
 
 const populateStudents = async () => {
   try {
-    await Student.deleteMany({});
-    for (let i = 0; i < students.length; i++) {
+    // await Student.deleteMany({});
+    for (let i = 0; i < students.length; i += 1) {
       const student = new Student(students[i]);
+      // eslint-disable-next-line
       await student.save();
     }
     // await Student.insertMany(students);
@@ -78,5 +83,5 @@ module.exports = {
   populateBranches,
   populateStudents,
   branches,
-  students
+  students,
 };

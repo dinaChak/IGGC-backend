@@ -1,6 +1,9 @@
+// @ts-check
+/* eslint-disable */ 
 const chai = require('chai');
+
 const {
-  expect
+  expect,
 } = chai;
 const chaiHttp = require('chai-http');
 
@@ -8,22 +11,26 @@ chai.use(chaiHttp);
 
 const app = require('../index');
 const {
-  Branch
+  Branch,
 } = require('../models/branch');
 const {
-  Student
+  Student,
 } = require('../models/student');
 const {
   populateBranches,
   populateStudents,
   branches,
-  students
+  students,
 } = require('./seeds/seed');
 
 beforeEach(populateBranches);
 beforeEach(populateStudents);
+afterEach(async () => {
+  await Branch.deleteMany({});
+  await Student.deleteMany({});
+});
 
-describe('GET /', function () {
+describe('GET /', () => {
   it('should return status code 200', async () => {
     try {
       const res = await chai.request(app).get('/')
@@ -34,7 +41,7 @@ describe('GET /', function () {
   });
 });
 
-describe('BRANCH', function() {
+describe('BRANCH', () => {
   describe('GET /branch', function () {
     it('should return all branches', async () => {
       try {
@@ -50,7 +57,7 @@ describe('BRANCH', function() {
 });
 
 // admin
-describe('ADMIN', function () {
+describe('ADMIN', () => {
   describe('POST /admin/branch/create', function () {
 
     it('should create new branch', async () => {
@@ -115,7 +122,7 @@ describe('ADMIN', function () {
 });
 
 // Students
-describe('STUDENT', function () {
+describe('STUDENT', () => {
 
 
   describe('POST /student/registration', function() {
@@ -138,7 +145,7 @@ describe('STUDENT', function () {
         expect(res).to.have.status(200);
         const student = await Student.findOne({ email: newStudent.email });
         expect(student).to.have.property('email', newStudent.email);
-        expect(student.dateOfBirth.toGMTString()).to.equal(new Date(newStudent.dateOfBirth).toGMTString());
+        expect(student.dateOfBirth.toISOString()).to.equal(new Date(newStudent.dateOfBirth).toISOString());
         expect(student.branch.toHexString()).to.have.equal(branches[0]._id.toHexString());
       } catch (error) {
         throw error;

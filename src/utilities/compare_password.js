@@ -1,3 +1,4 @@
+// @ts-check
 const bcrypt = require('bcryptjs');
 
 const comparePassword = (password, savedPassword) => {

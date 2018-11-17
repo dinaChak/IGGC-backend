@@ -1,8 +1,9 @@
+// @ts-check
 const _ = require('lodash');
 const jwt = require('jsonwebtoken');
 
 const {
-  Student
+  Student,
 } = require('../models/student');
 
 const { comparePassword } = require('../utilities/compare_password');
@@ -15,7 +16,7 @@ const registrationController = async (req, res) => {
     await student.save();
     res.send();
   } catch (error) {
-    res.status(500).send()
+    res.status(500).send();
   }
 };
 
@@ -25,28 +26,27 @@ const loginController = async (req, res) => {
   const { email, password } = req.body;
   try {
     const student = await Student.findOne({ email });
-    if (!student) throw new Error("Invalid email");
+    if (!student) throw new Error('Invalid email');
     await comparePassword(password, student.password);
-    
 
-    const token = jwt.sign({ _id: student._id }, process.env.JWT_SECRET, { expiresIn: '7d' }); 
+    // eslint-disable-next-line
+    const token = jwt.sign({ _id: student._id }, process.env.JWT_SECRET, { expiresIn: '7d' }); // eslint-ignore
 
-    res.header('x-auth', token).send(student);  
+    return res.header('x-auth', token).send(student);
   } catch (error) {
-   if (error.message.includes("Invalid"))
-    return res.status(401).send({
-      errors: [{
-        msg: "Invalid email or password"
-      }]
-    });
+    if (error.message.includes('Invalid')) {
+      return res.status(401).send({
+        errors: [{
+          msg: 'Invalid email or password',
+        }],
+      });
+    }
   }
-  res.status(500).send();
-}
-
-
+  return res.status(500).send();
+};
 
 
 module.exports = {
   registrationController,
-  loginController
-}
+  loginController,
+};
