@@ -10,7 +10,6 @@ const createBranchController = async (req, res) => {
       message: 'success'
     });
   } catch (error) {
-    console.error(error);
     res.status(500).send();
   }
 }

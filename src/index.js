@@ -14,7 +14,9 @@ const PORT = process.env.PORT || 5000;
 // configure
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(morgan('combined'));
+if (process.env.NODE_ENV !== 'test') {
+  app.use(morgan('combined'));
+}
 
 
 // routes
