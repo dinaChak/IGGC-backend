@@ -1,6 +1,8 @@
 // @ts-check
 const { Branch } = require('../models/branch');
+// const { Admission } = require('../models/admission');
 
+// creates new branch
 const createBranchController = async (req, res) => {
   const { title } = req.body;
 

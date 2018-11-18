@@ -1,6 +1,7 @@
 // @ts-check
 const mongoose = require('mongoose');
 
+mongoose.set('useFindAndModify', false);
 if (process.env.NODE_ENV === 'test') {
   mongoose.connect(process.env.MONGODB_TEST_URI, {
     useNewUrlParser: true,
