@@ -15,6 +15,7 @@ const {
 const {
   Student,
 } = require('../models/student');
+const { Admin } = require('../models/admin');
 const {
   Branch,
 } = require('../models/branch');
@@ -160,6 +161,96 @@ const studentLoginValidation = [
 /**
  * ADMIN
  */
+// Register new admin validation and sanitization
+const adminRegistrationValidation = [
+  // validation
+  body('name')
+    .trim()
+    .isLength({
+      min: 1,
+    }).withMessage('name should not be empty')
+    .custom(value => Admin.findOne({
+      name: value,
+      // eslint-disable-next-line
+    }).then((admin) => {
+      // eslint-disable-next-line
+      if (admin) return Promise.reject('Name already in use');
+    })),
+  body('password')
+    .isLength({
+      min: 6,
+    }).withMessage('must be at least 5 chars long')
+    .matches(/\d/)
+    .withMessage('must contain a number'),
+  body('confirmPassword')
+    .custom((value, {
+      req,
+    }) => {
+      if (value !== req.body.password) {
+        throw new Error('Password confirmation does not match password');
+      } else {
+        return true;
+      }
+    }),
+  body('role')
+    .trim()
+    .isLength({
+      min: 1,
+    }).withMessage('Role should not be empty')
+    .custom((value) => {
+      if (!['admin', 'staff'].includes(value.trim().toLowerCase())) {
+        throw new Error('Role should be Admin or Staff');
+      } else {
+        return true;
+      }
+    }),
+
+  // sanitization
+  sanitizeBody('name')
+    .trim()
+    .escape(),
+  sanitizeBody('password')
+    .trim()
+    .escape(),
+  sanitizeBody('role')
+    .trim()
+    .escape(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).send({
+        errors: errors.array(),
+      });
+    }
+    return next();
+  },
+];
+
+// admin login validation and sanitization
+const adminLoginValidation = [
+  // validation
+  body('name')
+    .trim()
+    .isLength({
+      min: 1,
+    }).withMessage('name should not be empty'),
+  body('password')
+    .isLength({
+      min: 6,
+    }).withMessage('must be at least 5 chars long')
+    .matches(/\d/)
+    .withMessage('must contain a number'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).send({
+        errors: errors.array(),
+      });
+    }
+    return next();
+  },
+];
+
 // Create new branch validation and sanitization
 const createBranchValidation = [
   // validation
@@ -196,5 +287,7 @@ const createBranchValidation = [
 module.exports = {
   studentRegistrationValidator,
   studentLoginValidation,
+  adminRegistrationValidation,
+  adminLoginValidation,
   createBranchValidation,
 };
