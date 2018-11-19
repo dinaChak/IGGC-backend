@@ -14,6 +14,7 @@ const app = require('../index');
 const { Admin } = require('../models/admin');
 const { Student } = require('../models/student');
 const { Branch } = require('../models/branch');
+const { Admission } = require('../models/admission');
 const {
   populateAdmins,
   populateBranches,
@@ -30,11 +31,13 @@ afterEach(async () => {
   await Admin.deleteMany({});
   await Branch.deleteMany({});
   await Student.deleteMany({});
+  await Admission.deleteMany({});
 });
 after(async () => {
   await Admin.deleteMany({});
   await Branch.deleteMany({});
   await Student.deleteMany({});
+  await Admission.deleteMany({});
 });
 
 describe('GET /', () => {
@@ -260,6 +263,78 @@ describe('ADMIN', () => {
         const branchCount = await Branch.estimatedDocumentCount();
         expect(branchCount).to.equal(branches.length);
     });
+  });
+
+  describe('POST /admin/admission/create', function() {
+
+    it('should create new admission', async () => {
+      const token = jwt.sign({ _id: admins[0]._id, access: admins[0].role }, process.env.JWT_SECRET, { expiresIn: '7h' });
+
+      const admission = {
+        openingDate: '2018-11-22',
+        closingDate: '2018-12-27',
+        semester: 'even',
+      };
+
+      const res = await chai.request(app)
+        .post('/admin/admission/create')
+        .set('x-auth', token)
+        .send(admission);
+
+      expect(res).to.have.status(200);
+      expect(res.body).to.have.property('openingDate', new Date(admission.openingDate).toISOString()); 
+      expect(res.body).to.have.property('closingDate', new Date(admission.closingDate).toISOString()); 
+      expect(res.body).to.have.property('semester', admission.semester); 
+      expect(res.body).to.have.property('_id'); 
+    });
+
+    it('should not create admission for invalid form input', async () => {
+      const token = jwt.sign({ _id: admins[0]._id, access: admins[0].role }, process.env.JWT_SECRET, { expiresIn: '7h' });
+
+      const admission = {
+        openingDate: '2018-22',
+        closingDate: '2018-12-27',
+        semester: 'other',
+      };
+
+      const res = await chai.request(app)
+        .post('/admin/admission/create')
+        .set('x-auth', token)
+        .send(admission);
+
+      expect(res).to.have.status(422);
+      expect(res.body.errors).to.deep.include({
+        location: 'body',
+        param: 'openingDate',
+        value: admission.openingDate,
+        msg: 'Must be a ISO Date'
+      });
+
+      expect(res.body.errors).to.deep.include({
+        location: 'body',
+        param: 'semester',
+        value: admission.semester,
+        msg: 'semester must be even or odd'
+      });
+    });
+
+    it('should not create  admission for invalid admin token', async () => {
+      const token = jwt.sign({ _id: admins[0]._id, access: admins[0].role }, 'adfadfadsf', { expiresIn: '7h' });
+
+      const admission = {
+        openingDate: '2018-11-22',
+        closingDate: '2018-12-27',
+        semester: 'even',
+      };
+
+      const res = await chai.request(app)
+        .post('/admin/admission/create')
+        .set('x-auth', token)
+        .send(admission);
+
+      expect(res).to.have.status(401);
+    });
+
   });
 });
 
