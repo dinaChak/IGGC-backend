@@ -30,7 +30,6 @@ const registrationController = async (req, res) => {
     await newAdmin.save();
     return res.send();
   } catch (error) {
-    console.error(error);
     return res.status(500).send();
   }
 };

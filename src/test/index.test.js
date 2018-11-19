@@ -1,5 +1,6 @@
 // @ts-check
 /* eslint-disable */ 
+const jwt = require('jsonwebtoken');
 const chai = require('chai');
 
 const {
@@ -189,10 +190,12 @@ describe('ADMIN', () => {
 
   describe('POST /admin/branch/create', function () {
 
-    it('should create new branch', async () => {
+    it('should create new branch for Admin with role "admin"', async () => {
       try {
+        const token = jwt.sign({ _id: admins[0]._id, access: admins[0].role }, process.env.JWT_SECRET, { expiresIn: '7h' });
         const res = await chai.request(app)
           .post('/admin/branch/create')
+          .set('x-auth', token)
           .send({
             'title': 'Engineering'
           });
@@ -206,10 +209,25 @@ describe('ADMIN', () => {
       }
     });
 
+    it('should not create new branch for Admin with role "staff"', async () => {
+      const token = jwt.sign({ _id: admins[1]._id, access: admins[1].role }, process.env.JWT_SECRET, { expiresIn: '7h' });
+      const res = await chai.request(app)
+        .post('/admin/branch/create')
+        .set('x-auth', token)
+        .send({
+          'title': 'Engineering'
+        });
+
+      expect(res).to.have.status(401);
+      const totalBranches = await Branch.estimatedDocumentCount();
+      expect(totalBranches).to.equal(branches.length);
+    });
+
     it('should not create branch with no title', async () => {
-      try {
-        const res = await chai.request(app)
+      const token = jwt.sign({ _id: admins[0]._id, access: admins[0].role }, process.env.JWT_SECRET, { expiresIn: '7h' });
+      const res = await chai.request(app)
           .post('/admin/branch/create')
+          .set('x-auth', token)
           .send({  });
 
 
@@ -220,17 +238,15 @@ describe('ADMIN', () => {
           param: 'title',
           msg: 'title should not be empty'
         });
-      } catch (error) {
-        throw error;
-      }
     });
 
     it('should not create duplicate branch', async () => {
-      try {
-        const title = branches[0].title;
+      const token = jwt.sign({ _id: admins[0]._id, access: admins[0].role }, process.env.JWT_SECRET, { expiresIn: '7h' });
+      const title = branches[0].title;
 
         const res = await chai.request(app)
           .post('/admin/branch/create')
+          .set('x-auth', token)
           .send({ title })
 
         expect(res).to.have.status(422);
@@ -243,9 +259,6 @@ describe('ADMIN', () => {
         });
         const branchCount = await Branch.estimatedDocumentCount();
         expect(branchCount).to.equal(branches.length);
-      } catch (error) {
-        throw error;
-      }
     });
   });
 });

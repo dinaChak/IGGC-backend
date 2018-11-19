@@ -56,7 +56,7 @@ const students = [
     name: `${faker.name.firstName()} ${faker.name.lastName()}`,
     dateOfBirth: faker.date.past(),
     gender: Math.random() < 0.5 ? 'male' : 'female',
-    phoneNumber: Array(10).fill(0).map(_ => Math.floor(Math.random() * 9)).join(''),
+    phoneNumber: Array(10).fill(0).map(() => Math.floor(Math.random() * 9)).join(''),
     // eslint-disable-next-line
     branch: branches[Math.floor(Math.random() * branches.length)]._id,
   },
@@ -67,7 +67,7 @@ const students = [
     name: `${faker.name.firstName()} ${faker.name.lastName()}`,
     dateOfBirth: faker.date.past(),
     gender: Math.random() < 0.5 ? 'male' : 'female',
-    phoneNumber: Array(10).fill(0).map(_ => Math.floor(Math.random() * 9)).join(''),
+    phoneNumber: Array(10).fill(0).map(() => Math.floor(Math.random() * 9)).join(''),
     // eslint-disable-next-line
     branch: branches[Math.floor(Math.random() * branches.length)]._id,
   },
