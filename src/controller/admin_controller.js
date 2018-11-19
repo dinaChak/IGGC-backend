@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const { Admin } = require('../models/admin');
 const { Branch } = require('../models/branch');
-// const { Admission } = require('../models/admission');
+const { Admission } = require('../models/admission');
 const { comparePassword } = require('../utilities/compare_password');
 
 // creates new branch
@@ -57,4 +57,30 @@ const loginController = async (req, res) => {
   }
 };
 
-module.exports = { registrationController, loginController, createBranchController };
+// create new admission
+const createAdmission = async (req, res) => {
+  const body = _.pick(req.body, ['openingDate', 'closingDate', 'semester']);
+  try {
+    const admission = await Admission.find();
+    if (admission.length === 0) {
+      const newAdmission = new Admission(body);
+      await newAdmission.save();
+      res.send(newAdmission);
+    } else {
+      const updatedAdmission = await Admission.findByIdAndUpdate(
+        // eslint-disable-next-line
+        admission[0]._id,
+        { $set: body },
+        { new: true },
+      );
+      res.send(updatedAdmission);
+    }
+  } catch (error) {
+    res.status(500).send();
+  }
+};
+
+
+module.exports = {
+  registrationController, loginController, createBranchController, createAdmission,
+};

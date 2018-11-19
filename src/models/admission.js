@@ -10,11 +10,6 @@ const AdmissionSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  status: {
-    type: Boolean,
-    required: true,
-    default: false,
-  },
   semester: {
     type: String,
     enum: ['even', 'odd'],
