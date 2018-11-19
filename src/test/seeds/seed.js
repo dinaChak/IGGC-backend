@@ -1,16 +1,31 @@
 // @ts-check
-/* eslint-disable */
 const {
   Types,
 } = require('mongoose');
 const faker = require('faker');
 
-const {
-  Branch,
-} = require('../../models/branch');
-const {
-  Student,
-} = require('../../models/student');
+const { Student } = require('../../models/student');
+const { Admin } = require('../../models/admin');
+const { Branch } = require('../../models/branch');
+
+const admins = [
+  {
+    _id: Types.ObjectId(),
+    name: faker.internet.userName(),
+    password: faker.internet.password(),
+    role: 'admin',
+  },
+  {
+    _id: Types.ObjectId(),
+    name: faker.internet.userName(),
+    password: faker.internet.password(),
+    role: 'staff',
+  },
+];
+
+const populateAdmins = async () => {
+  await Promise.all(admins.map(admin => new Admin(admin).save()));
+};
 
 
 const branches = [{
@@ -29,12 +44,7 @@ const branches = [{
 
 
 const populateBranches = async () => {
-  try {
-    // await Branch.deleteMany({});
-    await Branch.insertMany(branches);
-  } catch (error) {
-    throw error;
-  }
+  await Branch.insertMany(branches);
 };
 
 
@@ -65,23 +75,15 @@ const students = [
 
 
 const populateStudents = async () => {
-  try {
-    // await Student.deleteMany({});
-    for (let i = 0; i < students.length; i += 1) {
-      const student = new Student(students[i]);
-      // eslint-disable-next-line
-      await student.save();
-    }
-    // await Student.insertMany(students);
-  } catch (error) {
-    throw error;
-  }
+  await Promise.all(students.map(student => new Student(student).save()));
 };
 
 
 module.exports = {
+  populateAdmins,
   populateBranches,
   populateStudents,
+  admins,
   branches,
   students,
 };
