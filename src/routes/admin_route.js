@@ -18,7 +18,7 @@ const router = Router();
 router.post('/branch/create', isAuthenticAdminRoleAdmin, createBranchValidation, createBranchController);
 
 // POST create new admission
-router.post('/admission/create', isAuthenticAdminRoleAdmin, createAdmissionValidation, createAdmission);
+router.put('/admission/create', isAuthenticAdminRoleAdmin, createAdmissionValidation, createAdmission);
 
 // POST Register new Admin
 router.post('/register', adminRegistrationValidation, registrationController);

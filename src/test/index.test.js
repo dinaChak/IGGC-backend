@@ -265,7 +265,7 @@ describe('ADMIN', () => {
     });
   });
 
-  describe('POST /admin/admission/create', function() {
+  describe('PUT /admin/admission/create', function() {
 
     it('should create new admission', async () => {
       const token = jwt.sign({ _id: admins[0]._id, access: admins[0].role }, process.env.JWT_SECRET, { expiresIn: '7h' });
@@ -277,7 +277,7 @@ describe('ADMIN', () => {
       };
 
       const res = await chai.request(app)
-        .post('/admin/admission/create')
+        .put('/admin/admission/create')
         .set('x-auth', token)
         .send(admission);
 
@@ -298,7 +298,7 @@ describe('ADMIN', () => {
       };
 
       const res = await chai.request(app)
-        .post('/admin/admission/create')
+        .put('/admin/admission/create')
         .set('x-auth', token)
         .send(admission);
 
@@ -328,7 +328,7 @@ describe('ADMIN', () => {
       };
 
       const res = await chai.request(app)
-        .post('/admin/admission/create')
+        .put('/admin/admission/create')
         .set('x-auth', token)
         .send(admission);
 
