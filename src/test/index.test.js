@@ -19,14 +19,17 @@ const {
   populateAdmins,
   populateBranches,
   populateStudents,
+  populateAdmission,
   admins,
   branches,
   students,
+  admission,
 } = require('./seeds/seed');
 
 beforeEach(populateBranches);
 beforeEach(populateStudents);
 beforeEach(populateAdmins);
+beforeEach(populateAdmission);
 afterEach(async () => {
   await Admin.deleteMany({});
   await Branch.deleteMany({});
@@ -51,19 +54,31 @@ describe('GET /', () => {
   });
 });
 
-describe('BRANCH', () => {
-  describe('GET /branch', function () {
+describe.only('INFO', () => {
+
+  describe('GET /info/branches', function () {
     it('should return all branches', async () => {
-      try {
-        const res = await chai.request(app).get('/branch');
-        expect(res).to.have.status(200);
-        expect(res.body.branches).to.be.a('array');
-        expect(res.body.branches.length).to.equal(branches.length);
-      } catch (error) {
-        throw error;
-      }
+      const res = await chai.request(app).get('/info/branches');
+      
+      expect(res).to.have.status(200);
+      expect(res.body.branches).to.be.a('array');
+      expect(res.body.branches.length).to.equal(branches.length);
     });
   });
+
+  describe('GET /info/admission', function () {
+
+    it('should return admission', async () => {
+      const res = await chai.request(app).get('/info/admission');
+      
+      expect(res).to.have.status(200);
+      expect(res.body).to.have.property('openingDate', admission.openingDate.toISOString());
+      expect(res.body).to.have.property('closingDate', admission.closingDate.toISOString());
+      expect(res.body).to.have.property('semester', admission.semester);
+    });
+
+  });
+
 });
 
 // admin

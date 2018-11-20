@@ -7,7 +7,7 @@ require('dotenv').config();
 require('./db/mongoose');
 const studentRoutes = require('./routes/student_route');
 const adminRoutes = require('./routes/admin_route');
-const branchRoutes = require('./routes/branch_route');
+const infoRoutes = require('./routes/info_route');
 
 // setup
 const app = express();
@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
 
 app.use('/student', studentRoutes);
 app.use('/admin', adminRoutes);
-app.use('/branch', branchRoutes);
+app.use('/info', infoRoutes);
 
 app.listen(PORT, () => console.log(`server is listening on ${PORT}`));
 

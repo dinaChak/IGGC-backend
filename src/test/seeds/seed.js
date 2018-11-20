@@ -7,6 +7,7 @@ const faker = require('faker');
 const { Student } = require('../../models/student');
 const { Admin } = require('../../models/admin');
 const { Branch } = require('../../models/branch');
+const { Admission } = require('../../models/admission');
 
 const admins = [
   {
@@ -78,12 +79,24 @@ const populateStudents = async () => {
   await Promise.all(students.map(student => new Student(student).save()));
 };
 
+const admission = {
+  openingDate: faker.date.future(),
+  closingDate: faker.date.future(),
+  semester: 'even',
+};
+
+const populateAdmission = async () => {
+  await new Admission(admission).save();
+};
+
 
 module.exports = {
   populateAdmins,
   populateBranches,
   populateStudents,
+  populateAdmission,
   admins,
   branches,
   students,
+  admission,
 };
