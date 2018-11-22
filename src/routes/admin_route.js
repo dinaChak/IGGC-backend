@@ -9,7 +9,7 @@ const {
   adminLoginValidation,
   createBranchValidation,
   createAdmissionValidation,
-} = require('../middleware/validationAndSanitization');
+} = require('../middleware/validation_and_sanitization');
 const { isAuthenticAdminRoleAdmin } = require('../middleware/authentication');
 
 const router = Router();

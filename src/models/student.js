@@ -28,23 +28,42 @@ const StudentSchema = new mongoose.Schema({
   },
   dateOfBirth: {
     type: Date,
-    required: true,
   },
   gender: {
     type: String,
     enum: ['male', 'female', 'other'],
-    required: true,
   },
   phoneNumber: {
     type: String,
     minlength: 10,
     maxlength: 10,
-    required: true,
+  },
+  fatherName: {
+    type: String,
+  },
+  motherName: {
+    type: String,
+  },
+  addresses: {
+    present: {
+      type: String,
+    },
+    permanent: {
+      type: String,
+    },
+  },
+  religion: {
+    type: String,
+  },
+  category: {
+    type: String,
+  },
+  nationality: {
+    type: String,
   },
   branch: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Branch',
-    required: true,
   },
   rollNumber: {
     type: String,
@@ -52,9 +71,16 @@ const StudentSchema = new mongoose.Schema({
   profileImage: {
     type: String,
   },
+  signatureImage: {
+    type: String,
+  },
   created: {
     type: Date,
     default: Date.now(),
+  },
+  registrationCompleted: {
+    type: Boolean,
+    default: false,
   },
 });
 

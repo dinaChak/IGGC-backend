@@ -2,11 +2,8 @@
 const mongoose = require('mongoose');
 
 const SemesterSchema = new mongoose.Schema({
-  number: Number,
-  started: {
-    type: Date,
-    required: true,
-    default: Date.now,
+  number: {
+    type: Number,
   },
   fees: {
     type: String,
@@ -19,19 +16,12 @@ const SemesterSchema = new mongoose.Schema({
       enum: ['verified', 'processing', 'unverified'],
       default: 'unverified',
     },
-    documents: [
-      {
-        url: {
-          type: String,
-        },
-      },
-    ],
+    documentImage: String,
   },
   internal: [{
     number: {
       type: Number,
       enum: [1, 2, 3],
-      required: true,
     },
     performance: [{
       subject: {
@@ -45,7 +35,6 @@ const SemesterSchema = new mongoose.Schema({
       mark: Number,
       result: {
         type: String,
-        required: true,
         enum: ['pass', 'fail', 'absent'],
       },
     }],
@@ -65,7 +54,6 @@ const SemesterSchema = new mongoose.Schema({
     }],
     result: {
       type: String,
-      required: true,
     },
   },
   student: {

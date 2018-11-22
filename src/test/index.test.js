@@ -1,6 +1,7 @@
 // @ts-check
 /* eslint-disable */ 
 const jwt = require('jsonwebtoken');
+const { Types } = require('mongoose');
 const chai = require('chai');
 
 const {
@@ -54,7 +55,7 @@ describe('GET /', () => {
   });
 });
 
-describe.only('INFO', () => {
+describe('INFO', () => {
 
   describe('GET /info/branches', function () {
     it('should return all branches', async () => {
@@ -365,10 +366,6 @@ describe('STUDENT', () => {
           'name': 'John Doe',
           'password': 'password123',
           'confirmPassword': 'password123',
-          'gender': 'male',
-          'branch': branches[0]._id,
-          'phoneNumber': '1234567890',
-          'dateOfBirth': '1991-04-12'
         };
         const res = await chai.request(app)
           .post('/student/registration')
@@ -377,87 +374,61 @@ describe('STUDENT', () => {
         expect(res).to.have.status(200);
         const student = await Student.findOne({ email: newStudent.email });
         expect(student).to.have.property('email', newStudent.email);
-        expect(student.dateOfBirth.toISOString()).to.equal(new Date(newStudent.dateOfBirth).toISOString());
-        expect(student.branch.toHexString()).to.have.equal(branches[0]._id.toHexString());
       } catch (error) {
         throw error;
       }
     });
 
     it('should not create new student with invalid data', async () => {
-      try {
-        const newStudent = {
-          'email': 'deep@.com',
-          'name': '',
-          'password': 'password',
-          'confirmPassword': 'password123',
-          'gender': 'test',
-          'branch': '123afadfaadfadkfkja',
-          'phoneNumber': '1234567',
-          'dateOfBirth': '1991-04-12444'
-        };
-  
-        const res = await chai.request(app)
-          .post('/student/registration')
-          .send(newStudent);
-  
-        expect(res).to.have.status(422);
-        expect(res.body.errors).to.be.a('array');
-        expect(res.body.errors).to.deep.include({
-          location: 'body',
-          param: 'email',
-          value: newStudent.email,
-          msg: 'Invalid email'
-        });
-        expect(res.body.errors).to.deep.include({
-          location: 'body',
-          param: 'password',
-          value: newStudent.password,
-          msg: 'must contain a number'
-        });
+      const newStudent = {
+        'email': 'deep@.com',
+        'name': '',
+        'password': 'password',
+        'confirmPassword': 'password123',
+      };
 
-        expect(res.body.errors).to.deep.include({
-          location: 'body',
-          param: 'branch',
-          value: newStudent.branch,
-          msg: 'Invalid branch'
-        });
+      const res = await chai.request(app)
+        .post('/student/registration')
+        .send(newStudent);
 
-      } catch (error) {
-        throw error;
-      }
+      expect(res).to.have.status(422);
+      expect(res.body.errors).to.be.a('array');
+      expect(res.body.errors).to.deep.include({
+        location: 'body',
+        param: 'email',
+        value: newStudent.email,
+        msg: 'Invalid email'
+      });
+      expect(res.body.errors).to.deep.include({
+        location: 'body',
+        param: 'password',
+        value: newStudent.password,
+        msg: 'must contain a number'
+      });
     });
 
     it('should not create student duplicate email', async () => {
-      try {
-        const newStudent = {
-          'email': students[0].email,
-          'name': students[0].name,
-          'password': 'password123',
-          'confirmPassword': 'password123',
-          'gender': 'male',
-          'branch': branches[0]._id,
-          'phoneNumber': '1234567890',
-          'dateOfBirth': '1991-04-12'
-        };
+      const newStudent = {
+        'email': students[0].email,
+        'name': students[0].name,
+        'password': 'password123',
+        'confirmPassword': 'password123',
+      };
 
-        const res = await chai.request(app)
-          .post('/student/registration')
-          .send(newStudent);
+      const res = await chai.request(app)
+        .post('/student/registration')
+        .send(newStudent);
 
-        expect(res).to.have.status(422);
-        expect(res.body.errors).to.deep.include({
-          location: 'body',
-          param: 'email',
-          value: newStudent.email,
-          msg: 'E-mail already in use'
-        });
+      expect(res).to.have.status(422);
+      expect(res.body.errors).to.deep.include({
+        location: 'body',
+        param: 'email',
+        value: newStudent.email,
+        msg: 'E-mail already in use'
+      });
 
-      const studentCount = await Student.estimatedDocumentCount();
-      expect(studentCount).to.equal(students.length);
-      } catch (error) {
-        throw error;
-      }
+    const studentCount = await Student.estimatedDocumentCount();
+    expect(studentCount).to.equal(students.length);
     });
 
   });
@@ -529,6 +500,77 @@ describe('STUDENT', () => {
         param: 'email',
         value: student.email,
         msg: 'Invalid E-mail address'
+      });
+    });
+
+  });
+
+  describe.only('PUT /student/update', function () {
+
+    const student = {
+      email: students[2].email,
+      name: students[2].name,
+      fatherName: 'father',
+      motherName: 'mother',
+      dateOfBirth: '1991-02-02',
+      gender: 'male',
+      phoneNumber: '9876543210',
+      permanentAddress: 'Minister Line Tezu',
+      presentAddress: 'Minister Line Tezu',
+      religion: 'atheist',
+      category: 'st',
+      nationality: 'indian',
+    };
+     // eslint-disable-next-line
+     const token = jwt.sign({ _id: students[2]._id, access: 'student', }, process.env.JWT_SECRET, {
+      expiresIn: '7d',
+    });
+
+    it('should update student collection with valid form input', async () => {
+      const res = await chai.request(app)
+        .put('/student/update')
+        .set('x-auth', token)
+        .send(student);
+
+      expect(res).to.have.status(200);
+      expect(res.body).to.have.property('_id', students[2]._id.toHexString());
+      expect(res.body).to.have.property('nationality', student.nationality);
+      expect(res.body).to.have.property('name', student.name);
+      expect(res.body).to.have.property('phoneNumber', student.phoneNumber);
+    });
+
+    it('should not update student collection with invalid form input', async () => {
+      const invalidStudent = {
+        ...student,
+        religion: '',
+        presentAddress: '',
+        phoneNumber: '123'
+      };
+
+      const res = await chai.request(app)
+        .put('/student/update')
+        .set('x-auth', token)
+        .send(invalidStudent);
+
+      
+      expect(res).to.have.status(422);
+      expect(res.body.errors).to.deep.include({
+        location: 'body',
+        param: 'religion',
+        value: invalidStudent.religion,
+        msg: 'must provide religion'
+      });
+      expect(res.body.errors).to.deep.include({
+        location: 'body',
+        param: 'presentAddress',
+        value: '',
+        msg: 'presentAddress should not be empty'
+      });
+      expect(res.body.errors).to.deep.include({
+        location: 'body',
+        param: 'presentAddress',
+        value: '',
+        msg: 'presentAddress should not be empty' 
       });
     });
 

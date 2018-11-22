@@ -8,9 +8,9 @@ const {
 const {
   validationResult,
 } = require('express-validator/check');
-const {
-  Types,
-} = require('mongoose');
+// const {
+//   Types,
+// } = require('mongoose');
 
 const {
   Student,
@@ -58,37 +58,6 @@ const studentRegistrationValidator = [
     }).withMessage('must not be empty')
     .trim()
     .escape(),
-  body('dateOfBirth')
-    .isISO8601(),
-  body('gender')
-    .custom((value) => {
-      if (!['male', 'female', 'other'].includes(value.trim().toLowerCase())) {
-        throw new Error('gender must be male, female or other');
-      } else {
-        return true;
-      }
-    }),
-  body('branch')
-    .trim()
-    .isLength({
-      min: 1,
-    }).withMessage('branch is required')
-    .custom((value) => {
-      if (value && !Types.ObjectId.isValid(value.trim())) {
-        throw new Error('Invalid branch');
-      } else {
-        return true;
-      }
-    }),
-  body('phoneNumber')
-    .trim()
-    .isNumeric().withMessage('phone number should only contain number')
-    .isLength({
-      min: 10,
-      max: 10,
-    })
-    .withMessage('phone number must be 10 digits'),
-
   // sanitization
   sanitizeBody('email')
     .trim()
@@ -100,17 +69,6 @@ const studentRegistrationValidator = [
     .trim()
     .escape(),
   sanitizeBody('name')
-    .trim()
-    .escape(),
-  sanitizeBody('dateOfBirth')
-    .toDate(),
-  sanitizeBody('gender')
-    .trim()
-    .escape(),
-  sanitizeBody('branch')
-    .trim()
-    .escape(),
-  sanitizeBody('phoneNumber')
     .trim()
     .escape(),
   (req, res, next) => {
@@ -156,6 +114,185 @@ const studentLoginValidation = [
     }
     return next();
   },
+];
+
+//  new student admission validation and sanitization
+const updateStudentDetailsValidation = [
+  // validation
+  body('name')
+    .trim()
+    .isLength({
+      min: 1,
+    }).withMessage('should not be empty'),
+  body('email')
+    .trim()
+    .isEmail().withMessage('Invalid E-mail address'),
+  body('fatherName')
+    .trim()
+    .isLength({
+      min: 1,
+    }).withMessage('should not be empty'),
+  body('motherName')
+    .trim()
+    .isLength({
+      min: 1,
+    }).withMessage('should not be empty'),
+  body('gender')
+    .trim()
+    .isLength({
+      min: 1,
+    }).withMessage('gender must not empty')
+    .custom((value) => {
+      if (!['male', 'female', 'other'].includes(value)) {
+        throw new Error('gender must be male, female or other');
+      } else {
+        return true;
+      }
+    }),
+  body('dateOfBirth')
+    .isISO8601().withMessage('Must be a ISO Date'),
+  body('phoneNumber')
+    .trim()
+    .custom((value) => {
+      if (Number.isNaN(Number(value)) || value.length !== 10) {
+        throw new Error('phone number must be 10 digits');
+      } else {
+        return true;
+      }
+    }),
+  body('permanentAddress')
+    .trim()
+    .isLength({
+      min: 1,
+    }).withMessage('permanentAddress should not be empty'),
+  body('presentAddress')
+    .trim()
+    .isLength({
+      min: 1,
+    }).withMessage('presentAddress should not be empty'),
+  body('religion')
+    .isLength({
+      min: 1,
+    }).withMessage('must provide religion'),
+  body('category')
+    .isLength({
+      min: 1,
+    }).withMessage('must provide category'),
+  body('nationality')
+    .trim()
+    .isLength({
+      min: 1,
+    }).withMessage('must provide nationality'),
+
+  // sanitization
+  sanitizeBody('name')
+    .trim()
+    .escape(),
+  sanitizeBody('email')
+    .trim()
+    .normalizeEmail(),
+  sanitizeBody('fatherName')
+    .trim()
+    .escape(),
+  sanitizeBody('motherName')
+    .trim()
+    .escape(),
+  sanitizeBody('dateOfBirth')
+    .toDate(),
+  sanitizeBody('gender')
+    .trim()
+    .escape(),
+  sanitizeBody('phoneNumber')
+    .trim()
+    .escape(),
+  sanitizeBody('permanentAddress')
+    .trim()
+    .escape(),
+  sanitizeBody('presentAddress')
+    .trim()
+    .escape(),
+  sanitizeBody('religion')
+    .trim()
+    .escape(),
+  sanitizeBody('category')
+    .trim()
+    .escape(),
+  sanitizeBody('nationality')
+    .trim()
+    .escape(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).send({
+        errors: errors.array(),
+      });
+    }
+    return next();
+  },
+];
+
+// new student admission
+const studentNewAdmissionValidation = [
+  body('branch')
+    .trim()
+    .custom(value => Branch.findById(value)
+      .then((branch) => {
+        if (!branch) {
+          return Promise.reject(new Error('Invalid branch'));
+        }
+        return Promise.resolve();
+      })),
+  body('semester')
+    .trim()
+    .isLength({
+      min: 1,
+    })
+    .withMessage('should not be empty')
+    .isNumeric()
+    .withMessage('must be an number'),
+
+  sanitizeBody('branch')
+    .trim()
+    .escape(),
+  sanitizeBody('semester')
+    .trim()
+    .escape()
+    .toInt(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).send({
+        errors: errors.array(),
+      });
+    }
+    return next();
+  },
+];
+
+// create new semester admission
+const studentSemesterAdmissionValidation = [
+  body('semester')
+    .trim()
+    .isLength({
+      min: 1,
+    })
+    .withMessage('should not be empty')
+    .isNumeric()
+    .withMessage('must be an number'),
+  sanitizeBody('semester')
+    .trim()
+    .escape()
+    .toInt(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).send({
+        errors: errors.array(),
+      });
+    }
+    return next();
+  },
+
 ];
 
 /**
@@ -325,6 +462,9 @@ const createAdmissionValidation = [
 module.exports = {
   studentRegistrationValidator,
   studentLoginValidation,
+  updateStudentDetailsValidation,
+  studentSemesterAdmissionValidation,
+  studentNewAdmissionValidation,
   adminRegistrationValidation,
   adminLoginValidation,
   createBranchValidation,

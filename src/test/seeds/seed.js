@@ -55,9 +55,17 @@ const students = [
     email: 'test1@example.com',
     password: faker.internet.password(),
     name: `${faker.name.firstName()} ${faker.name.lastName()}`,
+    fatherName: `${faker.name.firstName()} ${faker.name.lastName()}`,
+    motherName: `${faker.name.firstName()} ${faker.name.lastName()}`,
     dateOfBirth: faker.date.past(),
     gender: Math.random() < 0.5 ? 'male' : 'female',
     phoneNumber: Array(10).fill(0).map(() => Math.floor(Math.random() * 9)).join(''),
+    address: {
+      present: `${faker.address.streetAddress()} ${faker.address.city()}`,
+      permanent: `${faker.address.streetAddress()} ${faker.address.city()}`,
+    },
+    religion: 'hindu',
+    category: 'st',
     // eslint-disable-next-line
     branch: branches[Math.floor(Math.random() * branches.length)]._id,
   },
@@ -66,11 +74,25 @@ const students = [
     email: 'test2@example.com',
     password: faker.internet.password(),
     name: `${faker.name.firstName()} ${faker.name.lastName()}`,
+    fatherName: `${faker.name.firstName()} ${faker.name.lastName()}`,
+    motherName: `${faker.name.firstName()} ${faker.name.lastName()}`,
     dateOfBirth: faker.date.past(),
     gender: Math.random() < 0.5 ? 'male' : 'female',
     phoneNumber: Array(10).fill(0).map(() => Math.floor(Math.random() * 9)).join(''),
+    address: {
+      present: `${faker.address.streetAddress()} ${faker.address.city()}`,
+      permanent: `${faker.address.streetAddress()} ${faker.address.city()}`,
+    },
+    religion: 'hindu',
+    category: 'st',
     // eslint-disable-next-line
     branch: branches[Math.floor(Math.random() * branches.length)]._id,
+  },
+  {
+    _id: Types.ObjectId(),
+    email: 'test3@example.com',
+    password: faker.internet.password(),
+    name: `${faker.name.firstName()} ${faker.name.lastName()}`,
   },
 ];
 
