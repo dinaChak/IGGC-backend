@@ -505,7 +505,7 @@ describe('STUDENT', () => {
 
   });
 
-  describe.only('PUT /student/update', function () {
+  describe('PUT /student/update', function () {
 
     const student = {
       email: students[2].email,
@@ -573,6 +573,109 @@ describe('STUDENT', () => {
         msg: 'presentAddress should not be empty' 
       });
     });
+
+  });
+
+  describe('POST /student/admission/new', function () {
+    
+    // eslint-disable-next-line
+    const token = jwt.sign({ _id: students[2]._id, access: 'student', }, process.env.JWT_SECRET, {
+      expiresIn: '7d',
+    });
+    
+    it('should create a new semester and add branch to student for login student', async () => {
+      const newAdmission = {
+        semester: 2,
+        branch: branches[0]._id,
+      };
+
+      const res = await chai.request(app)
+        .post('/student/admission/new')
+        .set('x-auth', token)
+        .send(newAdmission);
+
+      expect(res).to.have.status(200);
+      expect(res.body.semester).to.have.property('_id');
+      expect(res.body.student).to.have.property('branch', branches[0]._id.toHexString());
+    });
+
+    it('should not create new semester and add branch to student for login student for invalid semester', async () => {
+      const newAdmission = {
+        semester: 1,
+        branch: branches[0]._id,
+      };
+
+      const res = await chai.request(app)
+        .post('/student/admission/new')
+        .set('x-auth', token)
+        .send(newAdmission);
+
+      expect(res).to.have.status(400);
+      expect(res.body.errors).to.deep.include({
+        msg: `Admission open for even`
+      });
+    });
+
+    it('should not create new semester and add branch to student for login student for invalid branch', async () => {
+      const newAdmission = {
+        semester: 2,
+        branch: Types.ObjectId(),
+      };
+
+      const res = await chai.request(app)
+        .post('/student/admission/new')
+        .set('x-auth', token)
+        .send(newAdmission);
+
+      expect(res).to.have.status(422);
+      expect(res.body.errors).to.deep.include({
+        location: 'body',
+        param: 'branch',
+        value: newAdmission.branch.toHexString(),
+        msg: 'Invalid branch' 
+      });
+    });
+
+  });
+
+  describe.only('POST /student/semester/new', function () {
+    
+    // eslint-disable-next-line
+    const token = jwt.sign({ _id: students[2]._id, access: 'student', }, process.env.JWT_SECRET, {
+      expiresIn: '7d',
+    });
+    
+    it('should create a new semester for login student', async () => {
+      const newAdmission = {
+        semester: 2,
+      };
+
+      const res = await chai.request(app)
+        .post('/student/semester/new')
+        .set('x-auth', token)
+        .send(newAdmission);
+
+
+      expect(res).to.have.status(200);
+      // expect(res.body.semester).to.have.property('_id');
+    });
+
+    it('should not create new semester for login student for invalid semester', async () => {
+      const newAdmission = {
+        semester: 1,
+      };
+
+      const res = await chai.request(app)
+        .post('/student/semester/new')
+        .set('x-auth', token)
+        .send(newAdmission);
+
+      expect(res).to.have.status(400);
+      expect(res.body.errors).to.deep.include({
+        msg: `Admission open for even`
+      });
+    });
+
 
   });
 

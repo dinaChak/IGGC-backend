@@ -4,7 +4,7 @@ const multer = require('multer');
 const path = require('path');
 
 const myCustomStorage = require('../utilities/my_custome_storage');
-const { admissionOpen } = require('../utilities/admission_open');
+const { checkAdmission } = require('../utilities/check_admission');
 
 const {
   Student,
@@ -192,26 +192,25 @@ const updateStudentDetailsController = async (req, res) => {
 // semester admission
 const semesterAdmissionController = async (req, res) => {
   try {
-    const isAdmissionOpen = await admissionOpen();
-    if (!isAdmissionOpen) throw new Error('Admission closed');
+    await checkAdmission(req.body.semester);
     const semester = new Semester({
       number: req.body.semester,
       // eslint-disable-next-line
       student: req.user._id,
     });
     await semester.save();
-    res.send();
+    return res.send();
   } catch (error) {
-    console.log(error);
-    res.status(500).send();
+    // console.log(error);
+    if (error.code) return res.status(error.code).send({ errors: [{ msg: error.message }] });
+    return res.status(500).send();
   }
 };
 
 // new admission
 const newAdmissionController = async (req, res) => {
   try {
-    const isAdmissionOpen = await admissionOpen();
-    if (!isAdmissionOpen) throw new Error('Admission closed');
+    await checkAdmission(req.body.semester);
     const semester = new Semester({
       number: req.body.semester,
       // eslint-disable-next-line
@@ -226,13 +225,14 @@ const newAdmissionController = async (req, res) => {
     }, {
       new: true,
     });
-    res.send({
+    return res.send({
       semester,
       student,
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).send();
+    // console.log(error);
+    if (error.code) return res.status(error.code).send({ errors: [{ msg: error.message }] });
+    return res.status(500).send();
   }
 };
 
@@ -282,7 +282,7 @@ const submitVerificationDocument = (req, res) => {
       if (!semester) throw new Error('Invalid id');
       return res.send();
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       return res.status(500).send();
     }
   });
