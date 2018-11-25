@@ -16,7 +16,7 @@ const {
   updateStudentDetailsValidation,
   studentSemesterAdmissionValidation,
   studentNewAdmissionValidation,
-} = require('../middleware/validation_and_sanitization');
+} = require('../middleware/student_validation_sanitization');
 const { isAuthenticStudent } = require('../middleware/authentication');
 
 const router = Router();

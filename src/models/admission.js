@@ -10,6 +10,14 @@ const AdmissionSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  session: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Session',
+  },
+  updated: {
+    type: Date,
+    default: Date.now(),
+  },
   semester: {
     type: String,
     enum: ['even', 'odd'],
@@ -19,4 +27,6 @@ const AdmissionSchema = new mongoose.Schema({
 
 const Admission = mongoose.model('Admission', AdmissionSchema);
 
-module.exports = { Admission };
+module.exports = {
+  Admission,
+};

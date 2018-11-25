@@ -5,19 +5,6 @@ const SemesterSchema = new mongoose.Schema({
   number: {
     type: Number,
   },
-  fees: {
-    type: String,
-    enum: ['paid', 'due'],
-    default: 'due',
-  },
-  verification: {
-    status: {
-      type: String,
-      enum: ['verified', 'processing', 'unverified'],
-      default: 'unverified',
-    },
-    documentImage: String,
-  },
   internal: [{
     number: {
       type: Number,
@@ -59,6 +46,16 @@ const SemesterSchema = new mongoose.Schema({
   student: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Student',
+    required: true,
+  },
+  branch: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Branch',
+    required: true,
+  },
+  session: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Session',
     required: true,
   },
 });

@@ -3,13 +3,14 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
 
-const myCustomStorage = require('../utilities/my_custome_storage');
+const myCustomStorage = require('../utilities/my_custom_storage');
 const { checkAdmission } = require('../utilities/check_admission');
 
 const {
   Student,
 } = require('../models/student');
 const { Semester } = require('../models/semester');
+const { Session } = require('../models/session');
 
 const {
   comparePassword,
@@ -18,10 +19,14 @@ const {
 // student registration
 const registrationController = async (req, res) => {
   const studentBody = _.pick(req.body, ['email', 'password', 'name']);
+  const sessions = await Session.find().sort('from').limit(1);
+  if (sessions.length === 0) throw new Error('No Session found');
   try {
     const student = new Student(studentBody);
-    // eslint-disable-next-line
     await student.save();
+    // eslint-disable-next-line
+    const semester = new Semester({ student: student._id, session: sessions[0]._id });
+    await semester.save();
     res.send();
   } catch (error) {
     res.status(500).send();
@@ -193,10 +198,12 @@ const updateStudentDetailsController = async (req, res) => {
 const semesterAdmissionController = async (req, res) => {
   try {
     await checkAdmission(req.body.semester);
+    const sessions = await Session.find().sort('from').limit(1);
+    if (sessions.length === 0) throw new Error('No Session found');
     const semester = new Semester({
       number: req.body.semester,
       // eslint-disable-next-line
-      student: req.user._id,
+      student: req.user._id, session: sessions[0]._id,
     });
     await semester.save();
     return res.send();

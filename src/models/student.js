@@ -5,9 +5,16 @@ const bcrypt = require('bcryptjs');
 const _ = require('lodash');
 
 const StudentSchema = new mongoose.Schema({
+  phoneNumber: {
+    type: String,
+    unique: true,
+    validate: {
+      validator: value => (!Number.isNaN(Number(value)) && value.length === 10),
+      message: props => `${props.value} is not a valid phone number`,
+    },
+  },
   email: {
     type: String,
-    required: true,
     minlength: 1,
     unique: true,
     validate: {
@@ -33,11 +40,7 @@ const StudentSchema = new mongoose.Schema({
     type: String,
     enum: ['male', 'female', 'other'],
   },
-  phoneNumber: {
-    type: String,
-    minlength: 10,
-    maxlength: 10,
-  },
+
   fatherName: {
     type: String,
   },
@@ -78,9 +81,9 @@ const StudentSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
-  registrationCompleted: {
-    type: Boolean,
-    default: false,
+  status: {
+    type: String,
+    enum: ['studying', 'registering', 'passed', 'left'],
   },
 });
 
