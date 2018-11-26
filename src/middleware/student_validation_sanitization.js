@@ -1,42 +1,25 @@
-// @ts-check
-const {
-  body,
-} = require('express-validator/check');
-const {
-  sanitizeBody,
-} = require('express-validator/filter');
-const {
-  validationResult,
-} = require('express-validator/check');
+const { body } = require('express-validator/check');
+const { sanitizeBody } = require('express-validator/filter');
+const { validationResult } = require('express-validator/check');
 
-const {
-  Student,
-} = require('../models/student');
-const {
-  Branch,
-} = require('../models/branch');
+const { Student } = require('../models/student');
+const { Branch } = require('../models/branch');
 
-/**
- * Student
- */
-// student registration validation and sanitization
-const studentRegistrationValidator = [
+// student registration's validation and sanitization
+const registrationValidation = [
   // validation
   body('phoneNumber')
     .trim()
     .custom((value) => {
-      if (!Number.isNaN(Number(value))) {
+      if (Number.isNaN(Number(value)) || value.length !== 10) {
         throw new Error('phone number should only contain 10 digits');
       } else {
         return true;
       }
     })
-    .custom(value => Student.findOne({
-      phoneNumber: value,
-      // eslint-disable-next-line
-    }).then((student) => {
-      // eslint-disable-next-line
-      if (student) return Promise.reject('phone number already in use');
+    .custom(value => Student.findOne({ phoneNumber: value }).then((student) => {
+      if (student) return Promise.reject(new Error('phone number already in use'));
+      return Promise.resolve();
     })),
   body('password')
     .isLength({
@@ -60,6 +43,7 @@ const studentRegistrationValidator = [
     }).withMessage('must not be empty')
     .trim()
     .escape(),
+
   // sanitization
   sanitizeBody('phoneNumber')
     .trim()
@@ -85,13 +69,18 @@ const studentRegistrationValidator = [
   },
 ];
 
-
-// student login route validation and sanitization
-const studentLoginValidation = [
+// login validation and sanitization
+const loginValidation = [
   // validation
-  body('email')
+  body('phoneNumber')
     .trim()
-    .isEmail().withMessage('Invalid E-mail address'),
+    .custom((value) => {
+      if (Number.isNaN(Number(value)) || value.length !== 10) {
+        throw new Error('phone number should only contain 10 digits');
+      } else {
+        return true;
+      }
+    }),
   body('password')
     .isLength({
       min: 6,
@@ -99,10 +88,10 @@ const studentLoginValidation = [
     .matches(/\d/)
     .withMessage('must contain a number'),
 
-  // sanitization,
-  sanitizeBody('email')
+  // sanitization
+  sanitizeBody('phoneNumber')
     .trim()
-    .normalizeEmail(),
+    .toInt(),
   sanitizeBody('password')
     .trim()
     .escape(),
@@ -118,32 +107,41 @@ const studentLoginValidation = [
   },
 ];
 
-//  new student admission validation and sanitization
-const updateStudentDetailsValidation = [
+// student update basic info validation and sanitization
+const updateBasicInfoValidation = [
   // validation
   body('name')
     .trim()
     .isLength({
       min: 1,
-    }).withMessage('should not be empty'),
+    }).withMessage('Name should not be empty'),
   body('email')
     .trim()
-    .isEmail().withMessage('Invalid E-mail address'),
+    .isEmail().withMessage('Invalid E-mail address')
+    .custom(value => Student.findOne({ email: value })
+      .then((student) => {
+        console.log(student);
+        if (student) return Promise.reject(new Error('E-mail already in use'));
+        return Promise.resolve();
+      })),
   body('fatherName')
     .trim()
     .isLength({
       min: 1,
-    }).withMessage('should not be empty'),
+    }).withMessage('Father name should not be empty'),
   body('motherName')
     .trim()
     .isLength({
       min: 1,
-    }).withMessage('should not be empty'),
+    }).withMessage('Mother name should not be empty'),
+  body('dateOfBirth')
+    .trim()
+    .isISO8601().withMessage('Must be a ISO Date'),
   body('gender')
     .trim()
     .isLength({
       min: 1,
-    }).withMessage('gender must not empty')
+    }).withMessage('Gender should not be empty')
     .custom((value) => {
       if (!['male', 'female', 'other'].includes(value)) {
         throw new Error('gender must be male, female or other');
@@ -151,40 +149,28 @@ const updateStudentDetailsValidation = [
         return true;
       }
     }),
-  body('dateOfBirth')
-    .isISO8601().withMessage('Must be a ISO Date'),
-  body('phoneNumber')
-    .trim()
-    .custom((value) => {
-      if (Number.isNaN(Number(value)) || value.length !== 10) {
-        throw new Error('phone number must be 10 digits');
-      } else {
-        return true;
-      }
-    }),
-  body('permanentAddress')
-    .trim()
+  body('religion')
     .isLength({
       min: 1,
-    }).withMessage('permanentAddress should not be empty'),
+    }).withMessage('Please provide religion'),
+  body('category')
+    .isLength({
+      min: 1,
+    }).withMessage('Please provide category'),
+  body('nationality')
+    .isLength({
+      min: 1,
+    }).withMessage('Please provide nationality'),
   body('presentAddress')
     .trim()
     .isLength({
       min: 1,
     }).withMessage('presentAddress should not be empty'),
-  body('religion')
-    .isLength({
-      min: 1,
-    }).withMessage('must provide religion'),
-  body('category')
-    .isLength({
-      min: 1,
-    }).withMessage('must provide category'),
-  body('nationality')
+  body('permanentAddress')
     .trim()
     .isLength({
       min: 1,
-    }).withMessage('must provide nationality'),
+    }).withMessage('permanentAddress should not be empty'),
 
   // sanitization
   sanitizeBody('name')
@@ -202,9 +188,6 @@ const updateStudentDetailsValidation = [
   sanitizeBody('dateOfBirth')
     .toDate(),
   sanitizeBody('gender')
-    .trim()
-    .escape(),
-  sanitizeBody('phoneNumber')
     .trim()
     .escape(),
   sanitizeBody('permanentAddress')
@@ -233,33 +216,26 @@ const updateStudentDetailsValidation = [
   },
 ];
 
-// new student admission
-const studentNewAdmissionValidation = [
+// new semester admission validation and sanitization
+const semesterAdmissionValidation = [
+  // validation
+  body('semester')
+    .trim()
+    .isNumeric().withMessage('Semester must be a Number'),
   body('branch')
     .trim()
-    .custom(value => Branch.findById(value)
-      .then((branch) => {
-        if (!branch) {
-          return Promise.reject(new Error('Invalid branch'));
-        }
-        return Promise.resolve();
-      })),
+    .custom(value => Branch.findOne({ _id: value }).then((branch) => {
+      if (!branch) return Promise.reject(new Error('Invalid branch'));
+      return Promise.resolve();
+    })),
+
+  // sanitization
   body('semester')
     .trim()
-    .isLength({
-      min: 1,
-    })
-    .withMessage('should not be empty')
-    .isNumeric()
-    .withMessage('must be an number'),
-
-  sanitizeBody('branch')
+    .toInt(),
+  body('branch')
     .trim()
     .escape(),
-  sanitizeBody('semester')
-    .trim()
-    .escape()
-    .toInt(),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -271,35 +247,10 @@ const studentNewAdmissionValidation = [
   },
 ];
 
-// create new semester admission
-const studentSemesterAdmissionValidation = [
-  body('semester')
-    .trim()
-    .isLength({
-      min: 1,
-    })
-    .withMessage('should not be empty')
-    .isNumeric()
-    .withMessage('must be an number'),
-  sanitizeBody('semester')
-    .trim()
-    .escape()
-    .toInt(),
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).send({
-        errors: errors.array(),
-      });
-    }
-    return next();
-  },
-];
 
 module.exports = {
-  studentRegistrationValidator,
-  studentLoginValidation,
-  updateStudentDetailsValidation,
-  studentSemesterAdmissionValidation,
-  studentNewAdmissionValidation,
+  registrationValidation,
+  loginValidation,
+  updateBasicInfoValidation,
+  semesterAdmissionValidation,
 };

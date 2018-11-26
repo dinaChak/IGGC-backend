@@ -6,7 +6,7 @@ const morgan = require('morgan');
 require('dotenv').config();
 require('./db/mongoose');
 // const studentRoutes = require('./routes/student_route');
-const studentRoutes = require('./routes/student_route_2');
+const studentRoutes = require('./routes/student_route');
 const adminRoutes = require('./routes/admin_route');
 const infoRoutes = require('./routes/info_route');
 

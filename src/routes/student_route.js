@@ -3,47 +3,42 @@ const { Router } = require('express');
 const {
   registrationController,
   loginController,
-  changeProfileImage,
-  changeSignatureImage,
-  updateStudentDetailsController,
-  semesterAdmissionController,
-  newAdmissionController,
-  submitVerificationDocument,
+  updateBasicInfoController,
+  uploadProfileImage,
+  uploadStudentSignature,
+  newSemesterAdmission,
+  uploadVerificationDocument,
 } = require('../controller/student_controller');
 const {
-  studentRegistrationValidator,
-  studentLoginValidation,
-  updateStudentDetailsValidation,
-  studentSemesterAdmissionValidation,
-  studentNewAdmissionValidation,
+  registrationValidation,
+  loginValidation,
+  updateBasicInfoValidation,
+  semesterAdmissionValidation,
 } = require('../middleware/student_validation_sanitization');
 const { isAuthenticStudent } = require('../middleware/authentication');
 
 const router = Router();
 
+// POST registration
+router.post('/registration', registrationValidation, registrationController);
 
-// POST student registration.
-router.post('/registration', studentRegistrationValidator, registrationController);
+// POST login
+router.post('/login', loginValidation, loginController);
 
-// POST student login.
-router.post('/login', studentLoginValidation, loginController);
+// PUT update student basic info
+router.put('/update', isAuthenticStudent, updateBasicInfoValidation, updateBasicInfoController);
 
-// POST change student profile image.
-router.put('/profileimage/change', isAuthenticStudent, changeProfileImage);
+// POST upload profile image
+router.post('/profileimage/upload', isAuthenticStudent, uploadProfileImage);
 
-// POST change student signature image.
-router.put('/signature/change', isAuthenticStudent, changeSignatureImage);
+// POST upload student signature image
+router.post('/signature/upload', isAuthenticStudent, uploadStudentSignature);
 
-// POST student update
-router.put('/update', isAuthenticStudent, updateStudentDetailsValidation, updateStudentDetailsController);
+// POST new semester admission
+router.post('/admission/new', isAuthenticStudent, semesterAdmissionValidation, newSemesterAdmission);
 
-// POST create semester
-router.post('/semester/new', isAuthenticStudent, studentSemesterAdmissionValidation, semesterAdmissionController);
+// POST upload verification document
+router.post('/verification/document/upload', isAuthenticStudent, uploadVerificationDocument);
 
-// POST new  admission
-router.post('/admission/new', isAuthenticStudent, studentNewAdmissionValidation, newAdmissionController);
-
-// POST verification documents
-router.post('/admission/semester/:id/document', isAuthenticStudent, submitVerificationDocument);
 
 module.exports = router;

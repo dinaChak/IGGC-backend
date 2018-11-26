@@ -8,6 +8,9 @@ const { Student } = require('../../models/student');
 const { Admin } = require('../../models/admin');
 const { Branch } = require('../../models/branch');
 const { Admission } = require('../../models/admission');
+const { Session } = require('../../models/session');
+// const { Semester } = require('../../models/semester');
+// const { StudentInstance } = require('../../models/studentInstance');
 
 const admins = [
   {
@@ -66,6 +69,9 @@ const students = [
     },
     religion: 'hindu',
     category: 'st',
+    nationality: 'indian',
+    profileImage: faker.image.avatar(),
+    signatureImage: faker.image.image(),
     // eslint-disable-next-line
     branch: branches[Math.floor(Math.random() * branches.length)]._id,
   },
@@ -85,6 +91,9 @@ const students = [
     },
     religion: 'hindu',
     category: 'st',
+    nationality: 'indian',
+    profileImage: faker.image.avatar(),
+    signatureImage: faker.image.image(),
     // eslint-disable-next-line
     branch: branches[Math.floor(Math.random() * branches.length)]._id,
   },
@@ -101,6 +110,7 @@ const populateStudents = async () => {
   await Promise.all(students.map(student => new Student(student).save()));
 };
 
+
 const admission = {
   openingDate: faker.date.future(),
   closingDate: faker.date.future(),
@@ -111,14 +121,26 @@ const populateAdmission = async () => {
   await new Admission(admission).save();
 };
 
+const session = {
+  _id: Types.ObjectId(),
+  from: faker.date.future(),
+  to: faker.date.future(),
+};
+
+const populateSession = async () => {
+  await new Session(session).save();
+};
+
 
 module.exports = {
   populateAdmins,
   populateBranches,
   populateStudents,
   populateAdmission,
+  populateSession,
   admins,
   branches,
   students,
   admission,
+  session,
 };

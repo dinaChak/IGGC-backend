@@ -1,4 +1,3 @@
-// @ts-check
 const _ = require('lodash');
 const jwt = require('jsonwebtoken');
 
@@ -40,17 +39,26 @@ const loginController = async (req, res) => {
   const { name, password } = req.body;
   try {
     const admin = await Admin.findOne({ name });
-    if (!admin) throw new Error('Invalid name');
-    await comparePassword(password, admin.password);
+    if (!admin) {
+      const error = new Error('Name does not exists');
+      error.status = 422;
+      throw error;
+    }
+    const isPasswordCorrect = await comparePassword(password, admin.password);
+    if (!isPasswordCorrect) {
+      const error = new Error('Wrong password');
+      error.status = 422;
+      throw error;
+    }
 
     // eslint-disable-next-line
     const token = jwt.sign({ _id: admin._id, access: admin.role }, process.env.JWT_SECRET, { expiresIn: '7h' });
     return res.header('x-auth', token).send(admin);
   } catch (error) {
-    if (error.message.includes('Invalid')) {
-      return res.status(401).send({
+    if (error.status) {
+      return res.status(error.status).send({
         errors: [{
-          msg: 'Invalid name or password',
+          msg: error.message,
         }],
       });
     }

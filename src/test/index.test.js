@@ -16,32 +16,42 @@ const { Admin } = require('../models/admin');
 const { Student } = require('../models/student');
 const { Branch } = require('../models/branch');
 const { Admission } = require('../models/admission');
+const { Session } = require('../models/session');
+const { Semester } = require('../models/semester');
+const { StudentInstance } = require('../models/studentInstance');
 const {
   populateAdmins,
   populateBranches,
   populateStudents,
   populateAdmission,
+  populateSession,
   admins,
   branches,
   students,
   admission,
+  session,
 } = require('./seeds/seed');
 
 beforeEach(populateBranches);
 beforeEach(populateStudents);
 beforeEach(populateAdmins);
 beforeEach(populateAdmission);
+beforeEach(populateSession);
 afterEach(async () => {
   await Admin.deleteMany({});
   await Branch.deleteMany({});
   await Student.deleteMany({});
   await Admission.deleteMany({});
+  await Session.deleteMany({});
+  await Semester.deleteMany({});
 });
 after(async () => {
   await Admin.deleteMany({});
   await Branch.deleteMany({});
   await Student.deleteMany({});
   await Admission.deleteMany({});
+  await Session.deleteMany({});
+  await Semester.deleteMany({});
 });
 
 describe('GET /', () => {
@@ -199,9 +209,9 @@ describe('ADMIN', () => {
         .post('/admin/login')
         .send(admin);
 
-      expect(res).to.have.status(401);
+      expect(res).to.have.status(422);
       expect(res.body.errors).to.deep.include({
-        msg: 'Invalid name or password',
+        msg: 'Name does not exists',
       });
     });
 
@@ -289,6 +299,8 @@ describe('ADMIN', () => {
       const admission = {
         openingDate: '2018-11-22',
         closingDate: '2018-12-27',
+        from: '2019-02-02',
+        to: '2019-06-06',
         semester: 'even',
       };
 
@@ -298,10 +310,12 @@ describe('ADMIN', () => {
         .send(admission);
 
       expect(res).to.have.status(200);
-      expect(res.body).to.have.property('openingDate', new Date(admission.openingDate).toISOString()); 
-      expect(res.body).to.have.property('closingDate', new Date(admission.closingDate).toISOString()); 
-      expect(res.body).to.have.property('semester', admission.semester); 
-      expect(res.body).to.have.property('_id'); 
+      expect(res.body.admission).to.have.property('openingDate', new Date(admission.openingDate).toISOString()); 
+      expect(res.body.admission).to.have.property('closingDate', new Date(admission.closingDate).toISOString()); 
+      expect(res.body.admission).to.have.property('semester', admission.semester); 
+      expect(res.body.admission).to.have.property('_id');
+      expect(res.body.session).to.have.property('from', new Date(admission.from).toISOString()); 
+      expect(res.body.session).to.have.property('to', new Date(admission.to).toISOString()); 
     });
 
     it('should not create admission for invalid form input', async () => {
@@ -310,6 +324,8 @@ describe('ADMIN', () => {
       const admission = {
         openingDate: '2018-22',
         closingDate: '2018-12-27',
+        from: '2019-02-02',
+        to: '',
         semester: 'other',
       };
 
@@ -340,6 +356,8 @@ describe('ADMIN', () => {
       const admission = {
         openingDate: '2018-11-22',
         closingDate: '2018-12-27',
+        from: '2019-02-02',
+        to: '2019-06-06',
         semester: 'even',
       };
 
@@ -357,325 +375,172 @@ describe('ADMIN', () => {
 // Students
 describe('STUDENT', () => {
 
+  describe('POST /student/registration', function () {
+    
+    const studentBody = {
+      'phoneNumber': '9876543210',
+      'password': 'password123',
+      'confirmPassword': 'password123',
+      'name': 'Light Yagami',
+    };
 
-  describe('POST /student/registration', function() {
-    it('should register a new student', async () => {
-      try {
-        const newStudent = {
-          'email': 'johndoe@test.com',
-          'name': 'John Doe',
-          'password': 'password123',
-          'confirmPassword': 'password123',
-        };
-        const res = await chai.request(app)
-          .post('/student/registration')
-          .send(newStudent)
+    it('should register a student successfully', async () => {
+      const res = await chai.request(app)
+        .post('/student/registration')
+        .send(studentBody);
+
+      expect(res).to.have.status(200);
+      expect(res.body.student).to.have.property('name', studentBody.name);
+      expect(res.body.student).to.have.property('phoneNumber', studentBody.phoneNumber);
+      expect(res.body.studentInstance).to.have.property('verificationStatus', 'unverified');
+      expect(res.body.studentInstance).to.have.property('newRegistration', true);
+    });
+
+    it('should not register a duplicate student', async () => {
+      studentBody.phoneNumber = students[0].phoneNumber;
+
+      const res = await chai.request(app)
+        .post('/student/registration')
+        .send(studentBody);
+
+      expect(res).to.have.status(422);
+    });
+
+    it('should not register a student for invalid input', async () => {
+      studentBody.phoneNumber = '12309';
+
+      const res = await chai.request(app)
+        .post('/student/registration')
+        .send(studentBody);
+        
+      expect(res).to.have.status(422);
+    });
+  
+  });
+
+  describe('POST /student/login', function () {
+
+    const studentBody = {
+      'phoneNumber': students[0].phoneNumber,
+      'password': students[0].password
+    };
+
+    it('should login a valid student', async () => {
+      const res = await chai.request(app)
+        .post('/student/login')
+        .send(studentBody);
 
         expect(res).to.have.status(200);
-        const student = await Student.findOne({ email: newStudent.email });
-        expect(student).to.have.property('email', newStudent.email);
-      } catch (error) {
-        throw error;
-      }
+        expect(res).to.have.header('x-auth');
+        expect(res.body).to.have.property('name', students[0].name);
     });
 
-    it('should not create new student with invalid data', async () => {
-      const newStudent = {
-        'email': 'deep@.com',
-        'name': '',
-        'password': 'password',
-        'confirmPassword': 'password123',
-      };
-
+    it('should not login a invalid student', async () => {
+      studentBody.password = 'password123';
       const res = await chai.request(app)
-        .post('/student/registration')
-        .send(newStudent);
+        .post('/student/login')
+        .send(studentBody);
 
-      expect(res).to.have.status(422);
-      expect(res.body.errors).to.be.a('array');
-      expect(res.body.errors).to.deep.include({
-        location: 'body',
-        param: 'email',
-        value: newStudent.email,
-        msg: 'Invalid email'
-      });
-      expect(res.body.errors).to.deep.include({
-        location: 'body',
-        param: 'password',
-        value: newStudent.password,
-        msg: 'must contain a number'
-      });
-    });
-
-    it('should not create student duplicate email', async () => {
-      const newStudent = {
-        'email': students[0].email,
-        'name': students[0].name,
-        'password': 'password123',
-        'confirmPassword': 'password123',
-      };
-
-      const res = await chai.request(app)
-        .post('/student/registration')
-        .send(newStudent);
-
-      expect(res).to.have.status(422);
-      expect(res.body.errors).to.deep.include({
-        location: 'body',
-        param: 'email',
-        value: newStudent.email,
-        msg: 'E-mail already in use'
-      });
-
-    const studentCount = await Student.estimatedDocumentCount();
-    expect(studentCount).to.equal(students.length);
+        expect(res).to.have.status(422);
     });
 
   });
 
-  describe('POST /student/login', function() {
+  describe('PUT /student/update', function() {
 
-    it('should login a student with correct credentials', async () => {
-      const student = {
-        email: students[0].email,
-        password: students[0].password
-      };
-
-      const res = await chai.request(app)
-        .post('/student/login')
-        .send(student);
-      expect(res).to.have.status(200);
-      expect(res.body).to.deep.include({
-        email: students[0].email,
-        phoneNumber: students[0].phoneNumber
-      });
-      expect(res).to.have.header('x-auth');
-    });
-
-    it('should not login a student with incorrect email', async () => {
-      const student = {
-        email: 'test300@example.com',
-        password: 'password123'
-      };
-
-      const res = await chai.request(app)
-        .post('/student/login')
-        .send(student);
-
-      expect(res).to.have.status(401);
-      expect(res.body.errors).to.deep.include({
-        msg: "Invalid email or password"
-      });
-    });
-
-    it('should not login a student with incorrect password', async () => {
-      const student = {
-        email: students[0].email,
-        password: 'password123'
-      };
-
-      const res = await chai.request(app)
-        .post('/student/login')
-        .send(student);
-
-      expect(res).to.have.status(401);
-      expect(res.body.errors).to.deep.include({
-        msg: "Invalid email or password"
-      });
-    });
-
-    it('should not login a student with invalid email', async () => {
-      const student = {
-        email: 'john@.com',
-        password: 'password123'
-      };
-
-      const res = await chai.request(app)
-        .post('/student/login')
-        .send(student);
-
-      expect(res).to.have.status(422);
-      expect(res.body.errors).to.deep.include({
-        location: 'body',
-        param: 'email',
-        value: student.email,
-        msg: 'Invalid E-mail address'
-      });
-    });
-
-  });
-
-  describe('PUT /student/update', function () {
-
-    const student = {
-      email: students[2].email,
+    const studentBody = {
       name: students[2].name,
-      fatherName: 'father',
-      motherName: 'mother',
+      fatherName: 'Father Test',
+      motherName: 'Mother Test',
       dateOfBirth: '1991-02-02',
+      email: 'test213@test.com',
       gender: 'male',
-      phoneNumber: '9876543210',
-      permanentAddress: 'Minister Line Tezu',
-      presentAddress: 'Minister Line Tezu',
-      religion: 'atheist',
-      category: 'st',
-      nationality: 'indian',
+      religion: 'Hindu',
+      category: 'general',
+      nationality: 'Indian',
+      presentAddress: 'Minister Line, Tezu',
+      permanentAddress: 'Minister Line, Tezu',
     };
-     // eslint-disable-next-line
-     const token = jwt.sign({ _id: students[2]._id, access: 'student', }, process.env.JWT_SECRET, {
+
+    // eslint-disable-next-line
+    const token = jwt.sign({ _id: students[2]._id, access: 'student', }, process.env.JWT_SECRET, {
       expiresIn: '7d',
     });
 
-    it('should update student collection with valid form input', async () => {
+    it('should update student basic info for valid input', async () => {
       const res = await chai.request(app)
         .put('/student/update')
         .set('x-auth', token)
-        .send(student);
+        .send(studentBody);
 
       expect(res).to.have.status(200);
-      expect(res.body).to.have.property('_id', students[2]._id.toHexString());
-      expect(res.body).to.have.property('nationality', student.nationality);
-      expect(res.body).to.have.property('name', student.name);
-      expect(res.body).to.have.property('phoneNumber', student.phoneNumber);
     });
 
-    it('should not update student collection with invalid form input', async () => {
-      const invalidStudent = {
-        ...student,
-        religion: '',
-        presentAddress: '',
-        phoneNumber: '123'
-      };
+    it('should not update student basic info for invalid input', async () => {
+      studentBody.fatherName = "";
 
       const res = await chai.request(app)
         .put('/student/update')
         .set('x-auth', token)
-        .send(invalidStudent);
+        .send(studentBody);
 
-      
       expect(res).to.have.status(422);
-      expect(res.body.errors).to.deep.include({
-        location: 'body',
-        param: 'religion',
-        value: invalidStudent.religion,
-        msg: 'must provide religion'
-      });
-      expect(res.body.errors).to.deep.include({
-        location: 'body',
-        param: 'presentAddress',
-        value: '',
-        msg: 'presentAddress should not be empty'
-      });
-      expect(res.body.errors).to.deep.include({
-        location: 'body',
-        param: 'presentAddress',
-        value: '',
-        msg: 'presentAddress should not be empty' 
-      });
+    });
+
+    it('should not update student basic info for invalid student', async () => {
+      studentBody.fatherName = "Father Test";
+
+      const res = await chai.request(app)
+        .put('/student/update')
+        .set('x-auth', 'dfafadfadsfadfadfadsfasdfasdf')
+        .send(studentBody);
+
+      expect(res).to.have.status(401);
     });
 
   });
 
   describe('POST /student/admission/new', function () {
-    
+    const body = {
+      semester: '1',
+      branch: branches[0]._id,
+    };
+
     // eslint-disable-next-line
-    const token = jwt.sign({ _id: students[2]._id, access: 'student', }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ _id: students[0]._id, access: 'student', }, process.env.JWT_SECRET, {
       expiresIn: '7d',
     });
-    
-    it('should create a new semester and add branch to student for login student', async () => {
-      const newAdmission = {
-        semester: 2,
-        branch: branches[0]._id,
-      };
 
+    it('should create new admission for valid input', async () => {
       const res = await chai.request(app)
         .post('/student/admission/new')
         .set('x-auth', token)
-        .send(newAdmission);
-
+        .send(body);
+      
       expect(res).to.have.status(200);
-      expect(res.body.semester).to.have.property('_id');
-      expect(res.body.student).to.have.property('branch', branches[0]._id.toHexString());
     });
 
-    it('should not create new semester and add branch to student for login student for invalid semester', async () => {
-      const newAdmission = {
-        semester: 1,
-        branch: branches[0]._id,
-      };
+    it('should not create new admission for invalid input', async () => {
+      body.branch = Types.ObjectId();
 
       const res = await chai.request(app)
         .post('/student/admission/new')
         .set('x-auth', token)
-        .send(newAdmission);
-
-      expect(res).to.have.status(400);
-      expect(res.body.errors).to.deep.include({
-        msg: `Admission open for even`
-      });
-    });
-
-    it('should not create new semester and add branch to student for login student for invalid branch', async () => {
-      const newAdmission = {
-        semester: 2,
-        branch: Types.ObjectId(),
-      };
-
-      const res = await chai.request(app)
-        .post('/student/admission/new')
-        .set('x-auth', token)
-        .send(newAdmission);
-
+        .send(body);
+      
       expect(res).to.have.status(422);
-      expect(res.body.errors).to.deep.include({
-        location: 'body',
-        param: 'branch',
-        value: newAdmission.branch.toHexString(),
-        msg: 'Invalid branch' 
-      });
     });
 
-  });
-
-  describe.only('POST /student/semester/new', function () {
-    
-    // eslint-disable-next-line
-    const token = jwt.sign({ _id: students[2]._id, access: 'student', }, process.env.JWT_SECRET, {
-      expiresIn: '7d',
-    });
-    
-    it('should create a new semester for login student', async () => {
-      const newAdmission = {
-        semester: 2,
-      };
+    it('should not create new admission for invalid token', async () => {
+      body.branch = Types.ObjectId();
 
       const res = await chai.request(app)
-        .post('/student/semester/new')
-        .set('x-auth', token)
-        .send(newAdmission);
-
-
-      expect(res).to.have.status(200);
-      // expect(res.body.semester).to.have.property('_id');
+        .post('/student/admission/new')
+        .set('x-auth', 'dfadfadfadsfa')
+        .send(body);
+      
+      expect(res).to.have.status(401);
     });
-
-    it('should not create new semester for login student for invalid semester', async () => {
-      const newAdmission = {
-        semester: 1,
-      };
-
-      const res = await chai.request(app)
-        .post('/student/semester/new')
-        .set('x-auth', token)
-        .send(newAdmission);
-
-      expect(res).to.have.status(400);
-      expect(res.body.errors).to.deep.include({
-        msg: `Admission open for even`
-      });
-    });
-
 
   });
 
