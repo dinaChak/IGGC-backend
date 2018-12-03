@@ -149,25 +149,30 @@ const createAdmissionValidation = [
   body('closingDate')
     // 2009-02-29
     .isISO8601().withMessage('Must be a ISO Date'),
-  body('semester')
-    .isLength({
-      min: 1,
-    }).withMessage('semester is required')
+  body('openFor')
+    .isArray().withMessage('openFor should be an array')
     .custom((value) => {
-      if (!['even', 'odd'].includes(value.trim().toLowerCase())) {
-        throw new Error('semester must be even or odd');
+      if (value.length === 0) {
+        throw new Error('openFor should not be empty');
       } else {
         return true;
       }
     }),
+  body('from')
+    .isISO8601().withMessage('Must be a ISO Date'),
+  body('to')
+    .isISO8601().withMessage('Must be a ISO Date'),
 
   // sanitization
   sanitizeBody('openingDate')
     .toDate(),
   sanitizeBody('closingDate')
     .toDate(),
-  sanitizeBody('semester')
-    .trim()
+  sanitizeBody('from')
+    .toDate(),
+  sanitizeBody('to')
+    .toDate(),
+  sanitizeBody('openFor')
     .escape(),
   (req, res, next) => {
     const errors = validationResult(req);

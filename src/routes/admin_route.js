@@ -20,6 +20,7 @@ router.post('/branch/create', isAuthenticAdminRoleAdmin, createBranchValidation,
 // POST create new admission
 router.put('/admission/create', isAuthenticAdminRoleAdmin, createAdmissionValidation, createAdmission);
 
+
 // POST Register new Admin
 router.post('/register', adminRegistrationValidation, registrationController);
 

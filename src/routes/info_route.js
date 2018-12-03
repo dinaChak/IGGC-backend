@@ -1,7 +1,7 @@
 // @ts-check
 const { Router } = require('express');
 
-const { getBranchesController, getAdmissionController } = require('../controller/info');
+const { getBranchesController, getAdmission } = require('../controller/info');
 
 const router = Router();
 
@@ -9,6 +9,6 @@ const router = Router();
 router.get('/branches', getBranchesController);
 
 // Get admission info
-router.get('/admission', getAdmissionController);
+router.get('/admission', getAdmission);
 
 module.exports = router;

@@ -18,11 +18,16 @@ const AdmissionSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
-  semester: {
-    type: String,
-    enum: ['even', 'odd'],
-    required: true,
-  },
+  openFor: [{
+    semesters: [{
+      type: Number,
+      enum: [1, 2, 3, 4, 5, 6],
+    }],
+    branch: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Branch',
+    },
+  }],
 });
 
 const Admission = mongoose.model('Admission', AdmissionSchema);

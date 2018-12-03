@@ -68,7 +68,11 @@ const loginController = async (req, res) => {
 
 // create new admission
 const createAdmission = async (req, res) => {
-  const admissionBody = _.pick(req.body, ['openingDate', 'closingDate', 'semester']);
+  const admissionBody = {
+    openingDate: req.body.openingDate,
+    closingDate: req.body.closingDate,
+    openFor: req.body.openFor,
+  };
   const sessionBody = _.pick(req.body, ['from', 'to']);
   try {
     const admission = await Admission.find();

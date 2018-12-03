@@ -30,7 +30,6 @@ const StudentSchema = new mongoose.Schema({
   name: {
     type: String,
     trim: true,
-    required: true,
     minlength: 1,
   },
   dateOfBirth: {
@@ -47,7 +46,7 @@ const StudentSchema = new mongoose.Schema({
   motherName: {
     type: String,
   },
-  addresses: {
+  address: {
     present: {
       type: String,
     },

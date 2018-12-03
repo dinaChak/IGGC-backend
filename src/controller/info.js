@@ -15,14 +15,23 @@ const getBranchesController = async (req, res) => {
 };
 
 
-// get admission info
-const getAdmissionController = async (req, res) => {
+// get admission
+const getAdmission = async (req, res) => {
   try {
-    const admission = await Admission.find();
-    res.send(admission[0]);
+    const admission = (await Admission.find()
+      .limit(1)
+      .sort('-update')
+      .populate('session')
+      .populate({
+        path: 'openFor.branch',
+        model: 'Branch',
+      }))[0];
+
+    res.send({ admission });
   } catch (error) {
+    console.error(error);
     res.status(500).send();
   }
 };
 
-module.exports = { getBranchesController, getAdmissionController };
+module.exports = { getBranchesController, getAdmission };

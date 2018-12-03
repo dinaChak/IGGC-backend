@@ -1,6 +1,7 @@
 // @ts-check
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const morgan = require('morgan');
 
 require('dotenv').config();
@@ -15,6 +16,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // configure
+app.use(cors({ exposedHeaders: 'x-auth' }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 if (process.env.NODE_ENV !== 'test') {

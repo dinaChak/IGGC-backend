@@ -9,12 +9,12 @@ const { StudentInstance } = require('../models/studentInstance');
 const { Semester } = require('../models/semester');
 const { Session } = require('../models/session');
 
-const myCustomStorage = require('../utilities/my_custom_storage');
+const myCustomStorage = require('../utilities/imgur_storage');
 const { comparePassword } = require('../utilities/compare_password');
 
 // student registration
 const registrationController = async (req, res) => {
-  const studentBody = _.pick(req.body, ['phoneNumber', 'password', 'name']);
+  const studentBody = _.pick(req.body, ['phoneNumber', 'password', 'branch']);
   try {
     const student = new Student(studentBody);
     const studentInstance = new StudentInstance({
@@ -23,7 +23,11 @@ const registrationController = async (req, res) => {
     });
     await student.save();
     await studentInstance.save();
-    res.send({
+    // eslint-disable-next-line
+     const token = jwt.sign({ _id: student._id, access: 'student', }, process.env.JWT_SECRET, {
+      expiresIn: '7d',
+    });
+    res.header('x-auth', token).send({
       student,
       studentInstance,
     });
@@ -37,10 +41,10 @@ const registrationController = async (req, res) => {
 const loginController = async (req, res) => {
   const { phoneNumber, password } = req.body;
   try {
-    const student = await Student.findOne({ phoneNumber });
+    const student = await Student.findOne({ phoneNumber }).populate('branch');
     if (!student) {
       const error = new Error('Invalid email');
-      error.status = 400;
+      error.status = 422;
       throw error;
     }
     const isPasswordCorrect = await comparePassword(password, student.password);
@@ -53,14 +57,16 @@ const loginController = async (req, res) => {
     const token = jwt.sign({ _id: student._id, access: 'student', }, process.env.JWT_SECRET, {
       expiresIn: '7d',
     });
-    return res.header('x-auth', token).send(student);
+    // eslint-disable-next-line
+    const studentInstance = await StudentInstance.findOne({ student: student._id }).populate('semester');
+    return res.header('x-auth', token).send({ student, studentInstance });
   } catch (error) {
     console.error(error);
     if (error.status) {
       return res.status(error.status).send({
-        error: {
+        errors: [{
           msg: 'Invalid phone number or password',
-        },
+        }],
       });
     }
     return res.status(500).send();
@@ -88,7 +94,7 @@ const updateBasicInfoController = async (req, res) => {
     // eslint-disable-next-line
     const student = await Student.findByIdAndUpdate(req.user._id, { $set: formatedStudent }, { new: true });
     if (!student) throw new Error('Invalid student id');
-    res.send(student);
+    res.send({ student });
   } catch (error) {
     res.status(500).send();
   }
@@ -121,12 +127,15 @@ const uploadProfileImage = (req, res) => {
     }
 
     try {
-      await Student.findOneAndUpdate(
+      const student = await Student.findOneAndUpdate(
         // eslint-disable-next-line
         { _id: req.user._id },
         { $set: { profileImage: req.file.path } },
-      );
-      return res.send({ message: 'successfully changed profile image' });
+        {
+          new: true,
+        },
+      ).populate('branch');
+      return res.send({ student });
     } catch (error) {
       return res.status(500).send();
     }
@@ -161,13 +170,15 @@ const uploadStudentSignature = (req, res) => {
     }
 
     try {
-      await Student.findOneAndUpdate(
+      const student = await Student.findOneAndUpdate(
         // eslint-disable-next-line
         { _id: req.user._id },
         { $set: { signatureImage: req.file.path } },
-      );
-      return res.send({ message: 'successfully changed signature image' });
+        { new: true },
+      ).populate('branch');
+      return res.send({ student });
     } catch (error) {
+      console.log('afsfasfaagaga', error);
       return res.status(500).send();
     }
   });
@@ -178,46 +189,76 @@ const newSemesterAdmission = async (req, res) => {
   try {
     // eslint-disable-next-line
     const studentId = req.user._id;
-    const { semester, branch } = req.body;
+    const { semester: semesterNo } = req.body;
     const session = (await Session.find().sort('from').limit(1))[0];
     if (!session) throw new Error('No Session found');
+
+    let semester;
     // eslint-disable-next-line
-    const newSemester = new Semester({ branch, number: semester, student: studentId, session: session._id });
-    const promiseArr = await Promise.all([
-      newSemester.save(),
-      StudentInstance.findOneAndUpdate(
-        {
-          student: studentId,
+    semester = await Semester.findOne({ number: semesterNo, session: session._id, student: studentId });
+
+    if (!semester) {
+      const student = await Student.findById(studentId);
+      // eslint-disable-next-line
+      semester = new Semester({ branch: student.branch, number: semesterNo, student: studentId, session: session._id });
+      await semester.save();
+    }
+
+    const studentInstance = await StudentInstance.findOneAndUpdate(
+      {
+        student: studentId,
+      },
+      {
+        $set: {
+          // eslint-disable-next-line
+          semester: semester._id,
         },
-        {
-          $set: {
-            // eslint-disable-next-line
-            semester: newSemester._id,
-          },
-        },
-        {
-          new: true,
-        },
-      ),
-      Student.findByIdAndUpdate(
-        studentId,
-        {
-          $set: {
-            branch,
-          },
-        },
-        {
-          new: true,
-        },
-      ),
-    ]);
+      },
+      {
+        new: true,
+      },
+    );
     return res.send({
-      semester: promiseArr[0],
-      studentInstance: promiseArr[1],
-      student: promiseArr[2],
+      studentInstance,
+      semester,
     });
+    // eslint-disable-next-line
+    // const newSemester = new Semester({ branch, number: semester, student: studentId, session: session._id });
+    // const promiseArr = await Promise.all([
+    //   newSemester.save(),
+    //   StudentInstance.findOneAndUpdate(
+    //     {
+    //       student: studentId,
+    //     },
+    //     {
+    //       $set: {
+    //         // eslint-disable-next-line
+    //         semester: newSemester._id,
+    //       },
+    //     },
+    //     {
+    //       new: true,
+    //     },
+    //   ),
+    //   Student.findByIdAndUpdate(
+    //     studentId,
+    //     {
+    //       $set: {
+    //         branch,
+    //       },
+    //     },
+    //     {
+    //       new: true,
+    //     },
+    //   ),
+    // ]);
+    // return res.send({
+    //   semester: promiseArr[0],
+    //   studentInstance: promiseArr[1],
+    //   student: promiseArr[2],
+    // });
   } catch (error) {
-    console.error(error);
+    console.error('dfafafasf', error);
     return res.status(500).send();
   }
 };
@@ -260,9 +301,9 @@ const uploadVerificationDocument = (req, res) => {
         {
           new: true,
         },
-      );
+      ).populate('semester');
       if (!studentInstance) throw new Error('studentInstance not found');
-      return res.send(studentInstance);
+      return res.send({ studentInstance });
     } catch (error) {
       console.log(error);
       return res.status(500).send();

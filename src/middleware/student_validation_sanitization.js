@@ -37,12 +37,12 @@ const registrationValidation = [
         return true;
       }
     }),
-  body('name')
-    .isLength({
-      min: 1,
-    }).withMessage('must not be empty')
+  body('branch')
     .trim()
-    .escape(),
+    .custom(value => Branch.findOne({ _id: value }).then((branch) => {
+      if (!branch) return Promise.reject(new Error('Invalid branch'));
+      return Promise.resolve();
+    })),
 
   // sanitization
   sanitizeBody('phoneNumber')
@@ -54,7 +54,7 @@ const registrationValidation = [
   sanitizeBody('confirmPassword')
     .trim()
     .escape(),
-  sanitizeBody('name')
+  body('branch')
     .trim()
     .escape(),
   (req, res, next) => {
@@ -222,20 +222,12 @@ const semesterAdmissionValidation = [
   body('semester')
     .trim()
     .isNumeric().withMessage('Semester must be a Number'),
-  body('branch')
-    .trim()
-    .custom(value => Branch.findOne({ _id: value }).then((branch) => {
-      if (!branch) return Promise.reject(new Error('Invalid branch'));
-      return Promise.resolve();
-    })),
 
   // sanitization
   body('semester')
     .trim()
     .toInt(),
-  body('branch')
-    .trim()
-    .escape(),
+
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
