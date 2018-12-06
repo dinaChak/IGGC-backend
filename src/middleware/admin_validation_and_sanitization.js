@@ -185,9 +185,38 @@ const createAdmissionValidation = [
   },
 ];
 
+// update studentInstance validation and sanitization
+const updateStudentInstanceValidationStatusValidation = [
+  // validation
+  body('verificationStatus')
+    .trim()
+    .custom((value) => {
+      if (!['verified', 'rejected'].includes(value)) {
+        throw new Error('Invalid validationStatus');
+      } else {
+        return true;
+      }
+    }),
+
+  // sanitization
+  sanitizeBody('validationStatus')
+    .trim()
+    .escape(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).send({
+        errors: errors.array(),
+      });
+    }
+    return next();
+  },
+];
+
 module.exports = {
   adminRegistrationValidation,
   adminLoginValidation,
   createBranchValidation,
   createAdmissionValidation,
+  updateStudentInstanceValidationStatusValidation,
 };

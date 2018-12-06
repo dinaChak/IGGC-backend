@@ -2,12 +2,14 @@ const _ = require('lodash');
 const multer = require('multer');
 const path = require('path');
 const jwt = require('jsonwebtoken');
+const axios = require('axios');
 
 
 const { Student } = require('../models/student');
 const { StudentInstance } = require('../models/studentInstance');
 const { Semester } = require('../models/semester');
 const { Session } = require('../models/session');
+const { Admission } = require('../models/admission');
 
 const myCustomStorage = require('../utilities/imgur_storage');
 const { comparePassword } = require('../utilities/compare_password');
@@ -222,41 +224,6 @@ const newSemesterAdmission = async (req, res) => {
       studentInstance,
       semester,
     });
-    // eslint-disable-next-line
-    // const newSemester = new Semester({ branch, number: semester, student: studentId, session: session._id });
-    // const promiseArr = await Promise.all([
-    //   newSemester.save(),
-    //   StudentInstance.findOneAndUpdate(
-    //     {
-    //       student: studentId,
-    //     },
-    //     {
-    //       $set: {
-    //         // eslint-disable-next-line
-    //         semester: newSemester._id,
-    //       },
-    //     },
-    //     {
-    //       new: true,
-    //     },
-    //   ),
-    //   Student.findByIdAndUpdate(
-    //     studentId,
-    //     {
-    //       $set: {
-    //         branch,
-    //       },
-    //     },
-    //     {
-    //       new: true,
-    //     },
-    //   ),
-    // ]);
-    // return res.send({
-    //   semester: promiseArr[0],
-    //   studentInstance: promiseArr[1],
-    //   student: promiseArr[2],
-    // });
   } catch (error) {
     console.error('dfafafasf', error);
     return res.status(500).send();
@@ -311,6 +278,33 @@ const uploadVerificationDocument = (req, res) => {
   });
 };
 
+// capture payment
+const capturePayment = async (req, res) => {
+  try {
+    // eslint-disable-next-line
+    const { razorpay_payment_id } = req.params;
+    // eslint-disable-next-line
+    const student = await Student.findById(req.user._id);
+    if (!student) throw new Error('No StudentInstance found');
+    const admission = (await Admission.find())[0];
+    if (!admission) throw new Error('No StudentInstance found');
+    // eslint-disable-next-line
+    const fees = admission.openFor.find(x => x.branch.toHexString() === student.branch.toHexString()).fee;
+    const response = await axios.post(
+    // eslint-disable-next-line
+      `https://${process.env.RAZORPAY_KEY}:${process.env.RAZORPAY_SECRET}@api.razorpay.com/v1/payments/${razorpay_payment_id}/capture`,
+      {
+        amount: String(Number(fees) * 100),
+      },
+    );
+    console.log(response.data);
+    res.send();
+  } catch (error) {
+    console.log(error);
+    res.send();
+  }
+};
+
 
 module.exports = {
   registrationController,
@@ -320,4 +314,5 @@ module.exports = {
   uploadStudentSignature,
   newSemesterAdmission,
   uploadVerificationDocument,
+  capturePayment,
 };

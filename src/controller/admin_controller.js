@@ -5,6 +5,7 @@ const { Admin } = require('../models/admin');
 const { Branch } = require('../models/branch');
 const { Admission } = require('../models/admission');
 const { Session } = require('../models/session');
+const { StudentInstance } = require('../models/studentInstance');
 const { comparePassword } = require('../utilities/compare_password');
 
 // creates new branch
@@ -15,7 +16,7 @@ const createBranchController = async (req, res) => {
     const branch = new Branch({ title });
     await branch.save();
     res.json({
-      message: 'success',
+      branch,
     });
   } catch (error) {
     res.status(500).send();
@@ -113,7 +114,96 @@ const createAdmission = async (req, res) => {
   }
 };
 
+// get new Applicants
+const getApplicants = async (req, res) => {
+  try {
+    const studentInstance = await StudentInstance.find({
+      newRegistration: true,
+    })
+      .sort('appliedOn')
+      .populate('student')
+      .populate('semester');
+    res.send({ newApplicants: studentInstance });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send();
+  }
+};
+
+// get Applicant count
+const getNewApplicantCount = async (req, res) => {
+  try {
+    const newApplicantCount = await StudentInstance.find({
+      newRegistration: true,
+    }).count();
+    return res.send({
+      newApplicantCount,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send();
+  }
+};
+
+// get the studentInstance with a given id
+const getStudentInstanceWithId = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const studentInstance = await StudentInstance.findById(id).populate('semester').populate('student');
+    res.send({ studentInstance });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send();
+  }
+};
+
+// update the studentInstance with a given id
+const updateStudentInstanceValidationStatusWidthId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { verificationStatus } = req.body;
+    const studentInstance = await StudentInstance.findByIdAndUpdate(id, {
+      $set: {
+        verificationStatus,
+      },
+    }, {
+      new: true,
+    });
+    if (!studentInstance) {
+      return res.status(400).send();
+    }
+    return res.send({ studentInstance });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send();
+  }
+};
+
+
+// get student count
+const getStudentCount = async (req, res) => {
+  try {
+    const studentCount = await StudentInstance.find({ newRegistration: false }).count();
+
+    return res.send({
+      studentCount,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send();
+  }
+};
+
 
 module.exports = {
-  registrationController, loginController, createBranchController, createAdmission,
+  registrationController,
+  loginController,
+  createBranchController,
+  createAdmission,
+  getNewApplicantCount,
+  getApplicants,
+  getStudentCount,
+  getStudentInstanceWithId,
+  updateStudentInstanceValidationStatusWidthId,
 };

@@ -12,7 +12,7 @@ const StudentInstanceSchema = new mongoose.Schema({
   },
   verificationStatus: {
     type: String,
-    enum: ['verified', 'processing', 'unverified'],
+    enum: ['verified', 'processing', 'unverified', 'rejected'],
     default: 'unverified',
   },
   documentImage: String,
@@ -24,6 +24,10 @@ const StudentInstanceSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Student',
     required: true,
+  },
+  appliedOn: {
+    type: Date,
+    default: Date.now,
   },
 });
 

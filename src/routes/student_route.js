@@ -8,6 +8,8 @@ const {
   uploadStudentSignature,
   newSemesterAdmission,
   uploadVerificationDocument,
+  capturePayment,
+
 } = require('../controller/student_controller');
 const {
   registrationValidation,
@@ -39,6 +41,9 @@ router.post('/admission/new', isAuthenticStudent, semesterAdmissionValidation, n
 
 // POST upload verification document
 router.post('/verification/document/upload', isAuthenticStudent, uploadVerificationDocument);
+
+// GET capture payment
+router.get('/admission/fees/payment/:razorpay_payment_id', isAuthenticStudent, capturePayment);
 
 
 module.exports = router;
