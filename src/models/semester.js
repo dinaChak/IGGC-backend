@@ -1,47 +1,26 @@
-// @ts-check
 const mongoose = require('mongoose');
+
+const SubjectsSchema = new mongoose.Schema({
+  subject: {
+    title: String,
+    code: String,
+  },
+  internal: [
+    {
+      number: Number,
+      mark: Number,
+    },
+  ],
+});
 
 const SemesterSchema = new mongoose.Schema({
   number: {
     type: Number,
   },
-  internal: [{
-    number: {
-      type: Number,
-      enum: [1, 2, 3],
-    },
-    performance: [{
-      subject: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Subject',
-      },
-      max: {
-        type: Number,
-        default: 20,
-      },
-      mark: Number,
-      result: {
-        type: String,
-        enum: ['pass', 'fail', 'absent'],
-      },
-    }],
-
-  }],
+  subjects: [SubjectsSchema],
   external: {
-    performance: [{
-      subject: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Subject',
-      },
-      max: {
-        type: Number,
-        default: 80,
-      },
-      mark: Number,
-    }],
-    result: {
-      type: String,
-    },
+    type: String,
+    enum: ['pass', 'pwbp', 'fail'],
   },
   student: {
     type: mongoose.Schema.Types.ObjectId,
@@ -49,14 +28,17 @@ const SemesterSchema = new mongoose.Schema({
     required: true,
   },
   branch: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Branch',
-    required: true,
+    type: String,
+    lowercase: true,
   },
   session: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Session',
     required: true,
+  },
+  result: {
+    type: String,
+    enum: ['pass', 'pwbp', 'fail', 'ab'],
   },
 });
 

@@ -7,7 +7,6 @@ const _ = require('lodash');
 const StudentSchema = new mongoose.Schema({
   phoneNumber: {
     type: String,
-    unique: true,
     validate: {
       validator: value => (!Number.isNaN(Number(value)) && value.length === 10),
       message: props => `${props.value} is not a valid phone number`,
@@ -16,7 +15,6 @@ const StudentSchema = new mongoose.Schema({
   email: {
     type: String,
     minlength: 1,
-    unique: true,
     validate: {
       validator: isEmail,
       message: props => `${props.value} is not a valid email`,
@@ -31,6 +29,7 @@ const StudentSchema = new mongoose.Schema({
     type: String,
     trim: true,
     minlength: 1,
+    lowercase: true,
   },
   dateOfBirth: {
     type: Date,
@@ -42,9 +41,11 @@ const StudentSchema = new mongoose.Schema({
 
   fatherName: {
     type: String,
+    lowercase: true,
   },
   motherName: {
     type: String,
+    lowercase: true,
   },
   address: {
     present: {
@@ -64,8 +65,8 @@ const StudentSchema = new mongoose.Schema({
     type: String,
   },
   branch: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Branch',
+    type: String,
+    lowercase: true,
   },
   rollNumber: {
     type: String,
@@ -80,11 +81,9 @@ const StudentSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
-  status: {
-    type: String,
-    enum: ['studying', 'registering', 'passed', 'left'],
-  },
 });
+
+StudentSchema.index({ name: 'text', rollNumber: 'text' });
 
 StudentSchema.methods.toJSON = function toJSON() {
   const student = this;

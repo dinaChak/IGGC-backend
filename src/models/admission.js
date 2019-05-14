@@ -2,6 +2,10 @@
 const mongoose = require('mongoose');
 
 const AdmissionSchema = new mongoose.Schema({
+  semesterType: {
+    type: String,
+    enum: ['even', 'odd'],
+  },
   openingDate: {
     type: Date,
     required: true,
@@ -10,28 +14,23 @@ const AdmissionSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  session: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Session',
-  },
-  updated: {
-    type: Date,
-    default: Date.now(),
-  },
-  openFor: [{
-    semesters: [{
-      type: Number,
-      enum: [1, 2, 3, 4, 5, 6],
+  branches: [{
+    title: String,
+    semesterFees: [{
+      semester: Number,
+      fees: Number,
     }],
-    branch: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Branch',
-    },
-    fee: {
-      type: Number,
-    },
   }],
+}, {
+  toObject: { virtuals: true },
+  toJSON: { virtuals: true },
 });
+
+AdmissionSchema
+  .virtual('closed')
+  .get(function closed() {
+    return new Date().getTime() > new Date(this.closingDate).getTime();
+  });
 
 const Admission = mongoose.model('Admission', AdmissionSchema);
 

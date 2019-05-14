@@ -7,7 +7,7 @@ const isAuthenticStudent = (req, res, next) => {
     // eslint-disable-next-line
     if (decoded.access !== 'student') throw new Error('Invalid token');
     // eslint-disable-next-line
-    req.user = { _id: decoded._id };
+    req.user = { _id: decoded._id, branch: decoded.branch };
     return next();
   } catch (error) {
     return res.status(401).send();

@@ -1,21 +1,33 @@
 const mongoose = require('mongoose');
 
-const StudentInstanceSchema = new mongoose.Schema({
-  fees: {
+const AdmissionSchema = new mongoose.Schema({
+  status: {
     type: String,
-    enum: ['paid', 'due'],
-    default: 'due',
+    enum: ['eligible', 'ineligible', 'admission_initiated', 'verification_document', 'verification', 'verified', 'rejected', 'completed'],
   },
+  rejection_reasons: {
+    type: String,
+  },
+  applying: {
+    type: Boolean,
+  },
+  semester: Number,
+  documentImage: String,
+  payment: {
+    status: {
+      type: String,
+      enum: ['paid', 'due'],
+      default: 'due',
+    },
+    amount: Number,
+  },
+});
+
+const StudentInstanceSchema = new mongoose.Schema({
   newRegistration: {
     type: Boolean,
     default: true,
   },
-  verificationStatus: {
-    type: String,
-    enum: ['verified', 'processing', 'unverified', 'rejected'],
-    default: 'unverified',
-  },
-  documentImage: String,
   semester: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Semester',
@@ -25,11 +37,26 @@ const StudentInstanceSchema = new mongoose.Schema({
     ref: 'Student',
     required: true,
   },
-  appliedOn: {
-    type: Date,
-    default: Date.now,
+  name: {
+    type: String,
+    trim: true,
+    minlength: 1,
+    lowercase: true,
   },
+  branch: {
+    type: String,
+    lowercase: true,
+  },
+  rollNumber: {
+    type: String,
+  },
+  current_semester: {
+    type: Number,
+  },
+  admission: AdmissionSchema,
 });
+
+StudentInstanceSchema.index({ name: 'text', branch: 'text', rollNumber: 'text' });
 
 const StudentInstance = mongoose.model('StudentInstance', StudentInstanceSchema);
 

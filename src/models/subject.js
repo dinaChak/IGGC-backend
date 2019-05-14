@@ -1,26 +1,20 @@
-// @ts-check
 const mongoose = require('mongoose');
 
 const SubjectSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    minlength: 1,
-    required: true,
-  },
-  code: {
-    type: String,
-    required: true,
-    minlength: 1,
-  },
+  title: String,
   branch: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Branch',
+    type: String,
+    lowercase: true,
   },
-  semester: {
-    type: Number,
-    enum: [1, 2, 3, 4, 5, 6],
-  },
+  papers: [{
+    title: {
+      type: String,
+    },
+    code: String,
+    semester: Number,
+  }],
 });
+
 
 const Subject = mongoose.model('Subject', SubjectSchema);
 

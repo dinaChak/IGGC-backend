@@ -8,6 +8,7 @@ const BranchSchema = new mongoose.Schema({
     minlength: 1,
     trim: true,
     lowercase: true,
+    unique: true,
   },
 });
 

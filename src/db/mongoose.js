@@ -1,18 +1,20 @@
-// @ts-check
 const mongoose = require('mongoose');
 
+
 mongoose.set('useFindAndModify', false);
+let uri = '';
 if (process.env.NODE_ENV === 'test') {
-  mongoose.connect(process.env.MONGODB_TEST_URI, {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-  });
+  uri = process.env.MONGODB_TEST_URI;
+} else if (process.env.NODE_ENV === 'development') {
+  uri = process.env.MONGODB_URI_DEV;
 } else {
-  mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-  });
+  uri = process.env.MONGODB_URI;
 }
+
+mongoose.connect(uri, {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+});
 
 
 const db = mongoose.connection;

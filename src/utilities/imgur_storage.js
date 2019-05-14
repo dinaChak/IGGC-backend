@@ -29,6 +29,7 @@ class MyCustomStorage {
           });
         })
         .catch((error) => {
+          console.log(error);
           cb(error);
         });
     });
