@@ -79,3 +79,5 @@ typings/
 playground/
 # uploads
 uploads/
+# keys
+*.pem
