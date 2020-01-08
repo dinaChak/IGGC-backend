@@ -63,6 +63,14 @@ const downloadXls = async (req, res) => {
         };
       }
       worksheet.addRow(row);
+      // console.log('profile image', studentInstance.profile_image.path);
+      // worksheet.addImage({
+      //   filename: studentInstance.profile_image.path,
+      //   extension: 'jpeg',
+      // }, {
+      //   tl: { col: 0, row: 0 },
+      //   ext: { width: 500, height: 200 },
+      // });
     });
 
     const fileName = 'students.xlsx';
@@ -72,6 +80,7 @@ const downloadXls = async (req, res) => {
     await workbook.xlsx.write(res);
     res.end();
   } catch (error) {
+    // console.log('download error', error);
     res.status(500).send();
   }
 };

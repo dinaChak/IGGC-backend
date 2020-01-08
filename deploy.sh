@@ -12,5 +12,6 @@ tar xf api.tar.gz -C api/
 rm api.tar.gz
 cd api
 npm install
-pm2 start API
+cd ~
+pm2 start ecosystem.config.js
 ENDSSH

@@ -9,6 +9,7 @@ const AdministrationBranchSchema = new mongoose.Schema({
       type: String,
     },
     designation: String,
+    phoneNumber: String,
   }],
 });
 

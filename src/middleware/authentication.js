@@ -1,16 +1,16 @@
 const jwt = require('jsonwebtoken');
+const { Student } = require('../models/student_new');
 
-const isAuthenticStudent = (req, res, next) => {
+const authenticateStudent = async (req, res, next) => {
   try {
     const token = req.header('x-auth');
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // eslint-disable-next-line
-    if (decoded.access !== 'student') throw new Error('Invalid token');
-    // eslint-disable-next-line
-    req.user = { _id: decoded._id, branch: decoded.branch };
-    return next();
+    const student = await Student.findById(decoded.id);
+    if (!student) throw new Error('Invalid token');
+    req.student = student;
+    next();
   } catch (error) {
-    return res.status(401).send();
+    res.status(401).send();
   }
 };
 
@@ -44,4 +44,4 @@ const isAuthenticAdminRoleStaff = (req, res, next) => {
   }
 };
 
-module.exports = { isAuthenticStudent, isAuthenticAdminRoleAdmin, isAuthenticAdminRoleStaff };
+module.exports = { authenticateStudent, isAuthenticAdminRoleAdmin, isAuthenticAdminRoleStaff };

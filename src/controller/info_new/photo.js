@@ -15,7 +15,8 @@ const getPhotos = async (req, res) => {
       Photo
         .find({ album })
         .limit(Number(limit))
-        .skip(Number(page) * Number(limit)),
+        .skip(Number(page) * Number(limit))
+        .sort('-posted'),
       Photo.countDocuments({ album }),
     ]);
     res.send({

@@ -19,7 +19,8 @@ const UploadSchema = new mongoose.Schema({
 UploadSchema
   .virtual('link')
   .get(function getImg() {
-    return this.file.link;
+    // return this.file.link;
+    return `${process.env.HOSTNAME}/public/${this.file.baseDir}/${this.file.fileName}`;
   });
 
 UploadSchema

@@ -81,3 +81,4 @@ playground/
 uploads/
 # keys
 *.pem
+*.xlsx

@@ -42,7 +42,7 @@ const deleteAdministrationBranch = async (req, res) => {
 const createAdministrationBranchStaff = async (req, res) => {
   try {
     const { id } = req.params;
-    const body = _.pick(req.body, ['name', 'designation']);
+    const body = _.pick(req.body, ['name', 'designation', 'phoneNumber']);
     const administrationBranch = await AdministrationBranch.findByIdAndUpdate(
       id,
       {
@@ -61,7 +61,7 @@ const createAdministrationBranchStaff = async (req, res) => {
 const updateAdministrationBranchStaff = async (req, res) => {
   try {
     const { id, staffId } = req.params;
-    const body = _.pick(req.body, ['name', 'designation']);
+    const body = _.pick(req.body, ['name', 'designation', 'phoneNumber']);
     const administrationBranch = await AdministrationBranch.findOneAndUpdate(
       {
         _id: id,

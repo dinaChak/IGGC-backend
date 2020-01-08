@@ -22,6 +22,10 @@ const PhotoSchema = new mongoose.Schema({
     baseDir: String,
     link: String,
   },
+  posted: {
+    type: Date,
+    default: Date.now,
+  },
 },
 {
   toObject: { virtuals: true },
@@ -31,7 +35,8 @@ const PhotoSchema = new mongoose.Schema({
 PhotoSchema
   .virtual('img')
   .get(function getImg() {
-    return this.image.link;
+    // return this.image.link;
+    return `${process.env.HOSTNAME}/public/${this.image.baseDir}/${this.image.fileName}`;
   });
 
 const Photo = mongoose.model('Photo', PhotoSchema);

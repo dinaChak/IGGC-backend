@@ -19,7 +19,7 @@ const CollegeProfileSchema = new mongoose.Schema({
 CollegeProfileSchema
   .virtual('img')
   .get(function getImg() {
-    return this.image.link;
+    return `${process.env.HOSTNAME}/public/${this.image.baseDir}/${this.image.fileName}`;
   });
 
 const CollegeProfile = mongoose.model('CollegeProfile', CollegeProfileSchema);

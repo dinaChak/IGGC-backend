@@ -4,7 +4,7 @@ const { Subject } = require('../../models/subject');
 
 const createSubject = async (req, res) => {
   try {
-    const body = _.pick(req.body, ['title', 'branch']);
+    const body = _.pick(req.body, ['title', 'branch', 'is_major']);
     const subject = new Subject(body);
     await subject.save();
     res.send({ subject });
@@ -17,7 +17,7 @@ const createSubject = async (req, res) => {
 const updateSubject = async (req, res) => {
   try {
     const { id } = req.params;
-    const body = _.pick(req.body, ['title', 'branch']);
+    const body = _.pick(req.body, ['title', 'branch', 'is_major']);
     const subject = await Subject.findByIdAndUpdate(
       id,
       { $set: body },
@@ -42,7 +42,7 @@ const deleteSubject = async (req, res) => {
 const createPaper = async (req, res) => {
   try {
     const { id } = req.params;
-    const body = _.pick(req.body, ['title', 'code', 'semester']);
+    const body = _.pick(req.body, ['title', 'code', 'semester', 'selected']);
     const subject = await Subject.findByIdAndUpdate(
       id,
       {
@@ -61,7 +61,7 @@ const createPaper = async (req, res) => {
 const updatePaper = async (req, res) => {
   try {
     const { id, paperId } = req.params;
-    const body = _.pick(req.body, ['title', 'code', 'semester']);
+    const body = _.pick(req.body, ['title', 'code', 'semester', 'selected']);
     const subject = await Subject.findOneAndUpdate(
       {
         _id: id,

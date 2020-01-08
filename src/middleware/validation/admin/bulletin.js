@@ -21,7 +21,7 @@ const bulletinValidation = [
   body('type')
     .trim()
     .custom((value) => {
-      if (!['examinations', 'news', 'events'].includes(value)) throw new Error('Type should be "examinations", "news", or "events');
+      if (!['admission & examination', 'notice', 'news & events'].includes(value)) throw new Error('Type should be "admission & examination", "notice", or "news & events');
       return true;
     }),
 

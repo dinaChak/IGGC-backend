@@ -8,7 +8,6 @@ const subjectValidation = [
   body('title')
     .trim()
     .isLength({ min: 1 }).withMessage('Please enter title.'),
-
   body('branch')
     .trim()
     .isLength({ min: 1 }).withMessage('Please enter programme.')
@@ -18,6 +17,8 @@ const subjectValidation = [
       }
       return Promise.resolve();
     })),
+  body('is_major')
+    .isBoolean().withMessage('Major can only be a boolean value.'),
 
   sanitizeBody('title')
     .trim(),
@@ -25,6 +26,8 @@ const subjectValidation = [
   sanitizeBody('branch')
     .trim()
     .customSanitizer(value => String(value).toLowerCase()),
+  sanitizeBody('is_major')
+    .toBoolean(),
 
 
   (req, res, next) => {
@@ -48,6 +51,9 @@ const paperValidation = [
   body('semester')
     .trim()
     .isInt().withMessage('Please enter valid semester'),
+  body('selected')
+    .optional({ nullable: true, checkFalsy: true })
+    .isBoolean().withMessage('Selected can only be a boolean value.'),
 
   sanitizeBody('title')
     .trim(),
@@ -56,6 +62,8 @@ const paperValidation = [
   sanitizeBody('semester')
     .trim()
     .toInt(),
+  sanitizeBody('selected')
+    .toBoolean(),
 
   (req, res, next) => {
     const errors = validationResult(req);

@@ -1,22 +1,10 @@
 const mongoose = require('mongoose');
 
 const BulletinSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-    lowercase: true,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-  body: {
-    type: String,
-  },
-  type: {
-    type: String,
-    enum: ['examinations', 'news', 'events'],
-  },
+  title: String,
+  description: String,
+  body: String,
+  type: String,
   date: {
     type: Date,
     default: Date.now,
@@ -35,8 +23,9 @@ const BulletinSchema = new mongoose.Schema({
 
 BulletinSchema
   .virtual('link')
-  .get(function getLink() {
-    return this.attachment.link;
+  // .get(() => this.attachment.link);
+  .get(function getImg() {
+    return `${process.env.HOSTNAME}/public/${this.attachment.baseDir}/${this.attachment.fileName}`;
   });
 
 const Bulletin = mongoose.model('Bulletin', BulletinSchema);

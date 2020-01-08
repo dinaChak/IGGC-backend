@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const SubjectSchema = new mongoose.Schema({
   title: String,
+  is_major: Boolean,
   branch: {
     type: String,
     lowercase: true,
@@ -12,6 +13,10 @@ const SubjectSchema = new mongoose.Schema({
     },
     code: String,
     semester: Number,
+    selected: {
+      type: Boolean,
+      default: false,
+    },
   }],
 });
 

@@ -5,12 +5,11 @@ const AdmissionNewSchema = new mongoose.Schema({
     from: Date,
     to: Date,
   },
+  semesters: [Number],
   start_date: Date,
   end_date: Date,
-  semester: {
-    instruction: String,
-    feeStructure: String,
-  },
+  instruction: String,
+  feeStructure: String,
   hostel: String,
 });
 

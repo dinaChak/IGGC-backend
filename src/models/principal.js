@@ -27,7 +27,8 @@ const PrincipalSchema = new mongoose.Schema({
 PrincipalSchema
   .virtual('img')
   .get(function getImg() {
-    return this.image.link;
+    // return this.image.link;
+    return `${process.env.HOSTNAME}/public/${this.image.baseDir}/${this.image.fileName}`;
   });
 
 const Principal = mongoose.model('Principal', PrincipalSchema);

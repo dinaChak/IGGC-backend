@@ -29,12 +29,19 @@ const administrationBranchStaffValidation = [
     .isLength({ min: 1 }).withMessage('Please enter name.'),
   body('designation')
     .optional({ nullable: true, checkFalsy: true }),
+  body('phoneNumber')
+    .trim()
+    .isNumeric()
+    .withMessage('Please provide a valid phone number'),
 
   sanitizeBody('name')
     .trim()
     .customSanitizer(value => String(value).toLowerCase()),
   sanitizeBody('designation')
     .trim(),
+  sanitizeBody('phoneNumber')
+    .trim(),
+
   (req, res, next) => {
     const errors = validationResult(req);
 

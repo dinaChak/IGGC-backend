@@ -37,7 +37,7 @@ const NewsLetterSchema = new mongoose.Schema({
 NewsLetterSchema
   .virtual('img')
   .get(function getImg() {
-    return this.image.link;
+    return `${process.env.HOSTNAME}/public/${this.image.baseDir}/${this.image.fileName}`;
   });
 
 const NewsLetter = mongoose.model('Newsletter', NewsLetterSchema);

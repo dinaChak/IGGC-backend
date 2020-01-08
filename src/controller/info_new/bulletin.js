@@ -9,6 +9,7 @@ const getBulletins = async (req, res) => {
       page = 0,
     } = req.query;
     const query = {};
+
     if (type) (query.type = type);
     const response = await Promise.all([
       Bulletin.find(query)

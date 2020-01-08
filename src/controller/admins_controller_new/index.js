@@ -55,18 +55,31 @@ const {
   updateSyllabus,
   deleteSyllabus,
 } = require('./syllabus');
+// const {
+//   getStudents,
+//   getSemesters,
+//   getSemester,
+//   getStudent,
+//   verifyApplicant,
+//   getStudentSemesters,
+//   updateStudentSemesterInternal,
+//   updateStudentSemesterExternal,
+//   updateStudentRollNo,
+//   deleteStudent,
+// } = require('./student');
 const {
   getStudents,
-  getSemesters,
-  getSemester,
+  getAllStudents,
   getStudent,
   verifyApplicant,
-  getStudentSemesters,
-  updateStudentSemesterInternal,
-  updateStudentSemesterExternal,
-  updateStudentRollNo,
+  admissionCompletedApplicant,
+  updateStudentSubjectCombination,
+  updateStudent,
+  updateStudentClassRollNo,
+  verifySelectedApplicants,
+  admissionCompletedSelectedApplicants,
   deleteStudent,
-} = require('./student');
+} = require('./student_new');
 const {
   createBulletin,
   updateBulletin,
@@ -124,6 +137,24 @@ const {
   updateAdmissionHostel,
   updateAdmissionDates,
 } = require('./admission_new');
+const {
+  downloadApplicantSheet,
+  downloadStudentsSheet,
+  downloadFacultiesSheet,
+  readStudentXL,
+} = require('./download_excels');
+const {
+  sendMassSMS,
+  sendSingleSMS,
+  sendManySMS,
+} = require('./mass_SMS');
+const {
+  createMarquee,
+  updateMarquee,
+  deleteMarquee,
+} = require('./marquee');
+const { downloadDesktopAppLatest } = require('./desktop_app');
+
 
 module.exports = {
   registration,
@@ -148,14 +179,15 @@ module.exports = {
   updateSyllabus,
   deleteSyllabus,
   getStudents,
+  getAllStudents,
   getStudent,
-  getSemesters,
-  getSemester,
   verifyApplicant,
-  getStudentSemesters,
-  updateStudentSemesterInternal,
-  updateStudentSemesterExternal,
-  updateStudentRollNo,
+  verifySelectedApplicants,
+  admissionCompletedSelectedApplicants,
+  admissionCompletedApplicant,
+  updateStudentSubjectCombination,
+  updateStudent,
+  updateStudentClassRollNo,
   deleteStudent,
   createBulletin,
   updateBulletin,
@@ -210,4 +242,15 @@ module.exports = {
   updateAdmissionFeeStructure,
   updateAdmissionHostel,
   updateAdmissionDates,
+  downloadApplicantSheet,
+  downloadStudentsSheet,
+  downloadFacultiesSheet,
+  readStudentXL,
+  sendMassSMS,
+  sendSingleSMS,
+  sendManySMS,
+  createMarquee,
+  updateMarquee,
+  deleteMarquee,
+  downloadDesktopAppLatest,
 };

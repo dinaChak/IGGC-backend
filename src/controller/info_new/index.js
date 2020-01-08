@@ -68,6 +68,17 @@ const {
 const {
   getIqac,
 } = require('./iqac');
+const {
+  studentCount,
+  studentCountByBranch,
+} = require('./student');
+const {
+  getSMSCount,
+} = require('./sms');
+const {
+  getMarquees,
+} = require('./marquee');
+const { getAppName } = require('./desktop_app');
 
 module.exports = {
   getSessions,
@@ -104,4 +115,9 @@ module.exports = {
   getUploads,
   getAdmission,
   getIqac,
+  studentCount,
+  studentCountByBranch,
+  getSMSCount,
+  getMarquees,
+  getAppName,
 };

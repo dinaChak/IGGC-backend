@@ -11,7 +11,7 @@ const updateAdmissionInstruction = async (req, res) => {
       id,
       {
         $set: {
-          'semester.instruction': instruction,
+          instruction,
         },
       },
       { new: true },
@@ -30,7 +30,7 @@ const updateAdmissionFeeStructure = async (req, res) => {
       id,
       {
         $set: {
-          'semester.feeStructure': feeStructure,
+          feeStructure,
         },
       },
       { new: true },
@@ -61,7 +61,7 @@ const updateAdmissionHostel = async (req, res) => {
 const updateAdmissionDates = async (req, res) => {
   try {
     const { id } = req.params;
-    const body = _.pick(req.body, ['start_date', 'end_date']);
+    const body = _.pick(req.body, ['start_date', 'end_date', 'semesters']);
     body.session = _.pick(req.body, ['from', 'to']);
     const admission = await AdmissionNew.findByIdAndUpdate(
       id,

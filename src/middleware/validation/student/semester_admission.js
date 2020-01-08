@@ -25,7 +25,7 @@ const semesterAdmissionValidation = [
       if (!mongoose.Types.ObjectId.isValid(value)) throw new Error('Invalid session');
       return true;
     }),
-  body('subjects')
+  body('subjectCombination')
     .isArray().withMessage('Subject must be a array')
     .custom((value, { req }) => Subject.find({
       branch: req.user.branch.toLowerCase(),

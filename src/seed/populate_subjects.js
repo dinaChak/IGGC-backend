@@ -13,7 +13,7 @@ const readFile = filePath => new Promise((resolve, reject) => {
 
 
 mongoose.set('useFindAndModify', false);
-mongoose.connect('mongodb://localhost/IGGC_DEV', {
+mongoose.connect('mongodb://iggc:qwerty1010@localhost/IGGC_DEV?authSource=admin', {
   useNewUrlParser: true,
   useCreateIndex: true,
 });

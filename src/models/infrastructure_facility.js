@@ -30,7 +30,10 @@ const InfrastructureFacilitySchema = new mongoose.Schema({
 InfrastructureFacilitySchema
   .virtual('img')
   .get(function getImg() {
-    return this.image.link;
+    // return this.image.link;
+    return this.image.baseDir
+      ? `${process.env.HOSTNAME}/public/${this.image.baseDir}/${this.image.fileName}`
+      : '';
   });
 
 const InfrastructureFacility = mongoose.model('InfrastructureFacility', InfrastructureFacilitySchema);

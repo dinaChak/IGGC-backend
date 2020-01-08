@@ -35,6 +35,11 @@ const {
   getUploads,
   getAdmission,
   getIqac,
+  studentCount,
+  studentCountByBranch,
+  getSMSCount,
+  getMarquees,
+  getAppName,
 } = require('../controller/info_new');
 
 const router = Router();
@@ -206,6 +211,31 @@ router.get(
 router.get(
   '/iqac',
   getIqac,
+);
+
+router.get(
+  '/student_count',
+  studentCount,
+);
+
+router.get(
+  '/student_count_by_branch',
+  studentCountByBranch,
+);
+
+router.get(
+  '/sms_count',
+  getSMSCount,
+);
+
+router.get(
+  '/marquees',
+  getMarquees,
+);
+
+router.get(
+  '/desktop_app_name',
+  getAppName,
 );
 
 module.exports = router;

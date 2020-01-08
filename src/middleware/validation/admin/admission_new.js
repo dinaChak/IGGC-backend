@@ -39,6 +39,15 @@ const admissionDatesValidation = [
   body('end_date')
     .trim()
     .isISO8601().withMessage('Please provide Admission end date.'),
+  body('semesters')
+    .isArray().withMessage('semesters should be a array of number')
+    .custom((value) => {
+      if (!value.every(semester => typeof semester === 'number')) {
+        throw new Error('Semester must be a number');
+      } else if (value.length < 1) {
+        throw new Error('Semesters must not be empty');
+      } else return true;
+    }),
 
   sanitizeBody('from')
     .trim()

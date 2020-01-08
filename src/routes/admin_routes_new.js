@@ -24,15 +24,28 @@ const {
   updateSyllabus,
   deleteSyllabus,
   getStudents,
+  getAllStudents,
   getStudent,
-  getSemesters,
-  getSemester,
   verifyApplicant,
-  getStudentSemesters,
-  updateStudentSemesterInternal,
-  updateStudentSemesterExternal,
-  updateStudentRollNo,
+  verifySelectedApplicants,
+  admissionCompletedSelectedApplicants,
+  admissionCompletedApplicant,
+  updateStudentSubjectCombination,
+  updateStudent,
+  updateStudentClassRollNo,
   deleteStudent,
+  downloadApplicantSheet,
+  downloadStudentsSheet,
+  // getStudents,
+  // getStudent,
+  // getSemesters,
+  // getSemester,
+  // verifyApplicant,
+  // getStudentSemesters,
+  // updateStudentSemesterInternal,
+  // updateStudentSemesterExternal,
+  // updateStudentRollNo,
+  // deleteStudent,
   createBulletin,
   updateBulletin,
   deleteBulletin,
@@ -40,7 +53,7 @@ const {
   updatePhoto,
   uploadPhoto,
   deletePhoto,
-  downloadXls,
+  // downloadXls,
   createStream,
   updateStream,
   deleteStream,
@@ -51,6 +64,7 @@ const {
   updateFaculty,
   updateFacultyPhoto,
   deleteFaculty,
+  downloadFacultiesSheet,
   createCell,
   updateCell,
   deleteCell,
@@ -86,6 +100,14 @@ const {
   updateAdmissionInstruction,
   updateAdmissionHostel,
   updateAdmissionDates,
+  sendMassSMS,
+  sendSingleSMS,
+  sendManySMS,
+  readStudentXL,
+  createMarquee,
+  updateMarquee,
+  deleteMarquee,
+  downloadDesktopAppLatest,
 } = require('../controller/admins_controller_new');
 
 const {
@@ -98,10 +120,12 @@ const {
   paperValidation,
   subjectRuleValidation,
   syllabusValidation,
-  verifyStudentValidation,
-  updateStudentSemesterInternalValidation,
-  updateStudentSemesterExternalValidation,
-  updateStudentRollNoValidation,
+  // verifyStudentValidation,
+  // updateStudentSemesterInternalValidation,
+  // updateStudentSemesterExternalValidation,
+  // updateStudentRollNoValidation,
+  updateStudentSubjectCombinationValidation,
+  updateStudentValidation,
   bulletinValidation,
   photoFieldsValidation,
   streamValidation,
@@ -121,13 +145,19 @@ const {
   aqarValidation,
   admissionNewValidation,
   admissionDatesValidation,
+  massSMSValidation,
+  singleSMSValidation,
+  manySMSValidation,
+  marqueeValidation,
 } = require('../middleware/validation/admin');
+const { smsValidation } = require('../middleware/validation/SMS');
 const {
   isAuthenticAdminRoleAdmin,
 } = require('../middleware/authentication');
 const localImgMulter = require('../middleware/uploads/image_local');
 const localPDFMulter = require('../middleware/uploads/pdf_local');
 const localFileMulter = require('../middleware/uploads/pdf_image_local');
+const memoryMulter = require('../utilities/memory_storage');
 
 const localFileProcessor = localFileMulter({
   basePath: path.join(__dirname, '..', '..', 'uploads'),
@@ -309,10 +339,89 @@ router.delete(
   deleteSyllabus,
 );
 
+// router.get(
+//   '/students',
+//   isAuthenticAdminRoleAdmin,
+//   getStudents,
+// );
+
+// router.get(
+//   '/students/:id',
+//   isAuthenticAdminRoleAdmin,
+//   getStudent,
+// );
+
+// router.put(
+//   '/students/:id/roll-no',
+//   isAuthenticAdminRoleAdmin,
+//   updateStudentRollNoValidation,
+//   updateStudentRollNo,
+// );
+
+// router.delete(
+//   '/students/:id',
+//   isAuthenticAdminRoleAdmin,
+//   deleteStudent,
+// );
+
+// router.get(
+//   '/students/:id/semesters',
+//   isAuthenticAdminRoleAdmin,
+//   getStudentSemesters,
+// );
+
+// router.get(
+//   '/download/students',
+//   isAuthenticAdminRoleAdmin,
+//   downloadXls,
+// );
+
+
+// router.get(
+//   '/semesters',
+//   isAuthenticAdminRoleAdmin,
+//   getSemesters,
+// );
+
+// router.get(
+//   '/semesters/:id',
+//   isAuthenticAdminRoleAdmin,
+//   getSemester,
+// );
+
+// router.put(
+//   '/semesters/:id/internal',
+//   isAuthenticAdminRoleAdmin,
+//   updateStudentSemesterInternalValidation,
+//   updateStudentSemesterInternal,
+// );
+
+// router.put(
+//   '/semesters/:id/external',
+//   isAuthenticAdminRoleAdmin,
+//   updateStudentSemesterExternalValidation,
+//   updateStudentSemesterExternal,
+// );
+
+// router.put(
+//   '/applicant/:id',
+//   isAuthenticAdminRoleAdmin,
+//   verifyStudentValidation,
+//   verifyApplicant,
+// );
+/**
+ * Student NEW
+ */
 router.get(
   '/students',
   isAuthenticAdminRoleAdmin,
   getStudents,
+);
+
+router.get(
+  '/students/all',
+  isAuthenticAdminRoleAdmin,
+  getAllStudents,
 );
 
 router.get(
@@ -322,10 +431,68 @@ router.get(
 );
 
 router.put(
-  '/students/:id/roll-no',
+  '/students/:id/verified',
   isAuthenticAdminRoleAdmin,
-  updateStudentRollNoValidation,
-  updateStudentRollNo,
+  smsValidation,
+  verifyApplicant,
+);
+
+router.put(
+  '/students/:id/admission_completed',
+  isAuthenticAdminRoleAdmin,
+  smsValidation,
+  admissionCompletedApplicant,
+);
+
+router.put(
+  '/students/verify',
+  isAuthenticAdminRoleAdmin,
+  verifySelectedApplicants,
+);
+
+router.put(
+  '/students/admission_completed',
+  isAuthenticAdminRoleAdmin,
+  admissionCompletedSelectedApplicants,
+);
+
+router.put(
+  '/students/:id/subject_combination',
+  isAuthenticAdminRoleAdmin,
+  updateStudentSubjectCombinationValidation,
+  updateStudentSubjectCombination,
+);
+
+router.put(
+  '/students/:id/update',
+  isAuthenticAdminRoleAdmin,
+  updateStudentValidation,
+  updateStudent,
+);
+
+router.put(
+  '/students/roll_no',
+  isAuthenticAdminRoleAdmin,
+  updateStudentClassRollNo,
+);
+
+router.get(
+  '/download/applicants/:programme',
+  isAuthenticAdminRoleAdmin,
+  downloadApplicantSheet,
+);
+
+
+router.get(
+  '/download/students/:programme',
+  isAuthenticAdminRoleAdmin,
+  downloadStudentsSheet,
+);
+
+router.post(
+  '/upload/students/excel',
+  memoryMulter.single('excel'),
+  readStudentXL,
 );
 
 router.delete(
@@ -334,50 +501,14 @@ router.delete(
   deleteStudent,
 );
 
-router.get(
-  '/students/:id/semesters',
+/**
+ * SMS
+ */
+router.post(
+  '/sms/students',
   isAuthenticAdminRoleAdmin,
-  getStudentSemesters,
-);
-
-router.get(
-  '/download/students',
-  isAuthenticAdminRoleAdmin,
-  downloadXls,
-);
-
-
-router.get(
-  '/semesters',
-  isAuthenticAdminRoleAdmin,
-  getSemesters,
-);
-
-router.get(
-  '/semesters/:id',
-  isAuthenticAdminRoleAdmin,
-  getSemester,
-);
-
-router.put(
-  '/semesters/:id/internal',
-  isAuthenticAdminRoleAdmin,
-  updateStudentSemesterInternalValidation,
-  updateStudentSemesterInternal,
-);
-
-router.put(
-  '/semesters/:id/external',
-  isAuthenticAdminRoleAdmin,
-  updateStudentSemesterExternalValidation,
-  updateStudentSemesterExternal,
-);
-
-router.put(
-  '/applicant/:id',
-  isAuthenticAdminRoleAdmin,
-  verifyStudentValidation,
-  verifyApplicant,
+  massSMSValidation,
+  sendMassSMS,
 );
 
 /**
@@ -394,7 +525,7 @@ router.post(
 router.put(
   '/bulletin/:id',
   isAuthenticAdminRoleAdmin,
-  localPDFProcessor.fieldValidationRequired.bind(localPDFProcessor),
+  localPDFProcessor.fieldValidationOptional.bind(localPDFProcessor),
   bulletinValidation,
   updateBulletin,
 );
@@ -509,6 +640,13 @@ router.delete(
   '/faculty/:id',
   isAuthenticAdminRoleAdmin,
   deleteFaculty,
+);
+
+// TODO: complete it
+router.get(
+  '/download/faculties',
+  // isAuthenticAdminRoleAdmin,
+  downloadFacultiesSheet,
 );
 
 
@@ -779,6 +917,52 @@ router.put(
   isAuthenticAdminRoleAdmin,
   admissionDatesValidation,
   updateAdmissionDates,
+);
+
+/**
+ * SMS
+ */
+router.post(
+  '/sms/send',
+  isAuthenticAdminRoleAdmin,
+  singleSMSValidation,
+  sendSingleSMS,
+);
+
+router.post(
+  '/sms/many/send',
+  isAuthenticAdminRoleAdmin,
+  manySMSValidation,
+  sendManySMS,
+);
+
+
+/**
+ * Marquee
+ */
+router.post(
+  '/marquee',
+  isAuthenticAdminRoleAdmin,
+  marqueeValidation,
+  createMarquee,
+);
+
+router.put(
+  '/marquee/:id',
+  isAuthenticAdminRoleAdmin,
+  marqueeValidation,
+  updateMarquee,
+);
+
+router.delete(
+  '/marquee/:id',
+  isAuthenticAdminRoleAdmin,
+  deleteMarquee,
+);
+
+router.get(
+  '/download/desktop_app/latest',
+  downloadDesktopAppLatest,
 );
 
 module.exports = router;

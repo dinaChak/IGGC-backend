@@ -28,6 +28,8 @@ const {
   updateStudentSemesterInternalValidation,
   updateStudentSemesterExternalValidation,
   updateStudentRollNoValidation,
+  updateStudentSubjectCombinationValidation,
+  updateStudentValidation,
 } = require('./student');
 const { bulletinValidation } = require('./bulletin');
 const {
@@ -68,6 +70,14 @@ const {
   admissionNewValidation,
   admissionDatesValidation,
 } = require('./admission_new');
+const {
+  massSMSValidation,
+  singleSMSValidation,
+  manySMSValidation,
+} = require('./mass_SMS');
+const {
+  marqueeValidation,
+} = require('./marquee');
 
 module.exports = {
   loginValidation,
@@ -83,6 +93,8 @@ module.exports = {
   updateStudentSemesterInternalValidation,
   updateStudentSemesterExternalValidation,
   updateStudentRollNoValidation,
+  updateStudentSubjectCombinationValidation,
+  updateStudentValidation,
   bulletinValidation,
   photoFieldsValidation,
   streamValidation,
@@ -102,4 +114,8 @@ module.exports = {
   aqarValidation,
   admissionNewValidation,
   admissionDatesValidation,
+  massSMSValidation,
+  singleSMSValidation,
+  manySMSValidation,
+  marqueeValidation,
 };
