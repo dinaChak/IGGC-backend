@@ -14,7 +14,7 @@ if (process.env.NODE_ENV === 'test') {
 mongoose.connect(uri, {
   useNewUrlParser: true,
   useCreateIndex: true,
-  // useUnifiedTopology: true
+  useUnifiedTopology: true
 });
 
 

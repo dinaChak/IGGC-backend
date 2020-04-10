@@ -1,3 +1,4 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 const faker = require('faker');
 const _ = require('lodash');
@@ -17,7 +18,7 @@ const { subjects, branchSubjects } = require('./subjects');
 const { subjectRules } = require('./subject_rule');
 
 mongoose.set('useFindAndModify', false);
-mongoose.connect('mongodb://localhost/IGGC_DEV', {
+mongoose.connect(process.env.MONGODB_URI_DEV, {
   useNewUrlParser: true,
   useCreateIndex: true,
 });
@@ -205,7 +206,7 @@ const populatedSubjectRules = async () => {
 
 const main = async () => {
   try {
-    await db.dropDatabase();
+    // await db.dropDatabase();
     await new Admin(admin).save();
     await Branch.insertMany(branches);
     await Admission.insertMany(admissions);

@@ -45,6 +45,12 @@ const CategorySchema = new mongoose.Schema({
   name: String,
 });
 
+const SemesterSchema = new mongoose.Schema({
+  subjects: [{ code: String, title: String }],
+  number: Number,
+  session: String,
+});
+
 const StudentSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -81,6 +87,11 @@ const StudentSchema = new mongoose.Schema({
   class_roll_no: String,
   branch: String,
   semester: Number,
+  semesters: [SemesterSchema],
+  failed: {
+    type: Boolean,
+    default: false,
+  },
   major_subject: String,
   subjectCombination: [{
     code: String,

@@ -108,8 +108,8 @@ const {
   updateMarquee,
   deleteMarquee,
   downloadDesktopAppLatest,
-  updateStudentAcademicDetails,
-} = require('../controller/admins_controller_new');
+  // updateStudentAcademicDetails,
+} = require('../controller/admins_controller');
 
 const {
   loginValidation,
@@ -150,7 +150,7 @@ const {
   singleSMSValidation,
   manySMSValidation,
   marqueeValidation,
-  updateAcademicDetailValidation,
+  // updateAcademicDetailValidation,
 } = require('../middleware/validation/admin');
 const { smsValidation } = require('../middleware/validation/SMS');
 const {
@@ -497,23 +497,22 @@ router.post(
   readStudentXL,
 );
 
-/**
- * UPDATE ACADEMIC DETAILS
- */
-router.post(
-  '/students/:id/academic/details',
-  isAuthenticAdminRoleAdmin,
-  updateAcademicDetailValidation,
-  updateStudentAcademicDetails
-);
-
-
 router.delete(
   '/students/:id',
   isAuthenticAdminRoleAdmin,
   deleteStudent,
 );
 
+/**
+ * UPDATE ACADEMIC DETAILS
+ */
+router.post(
+  '/students/:id/academic/details',
+  (req, res) => {
+    console.log('HELLO WORLD');
+    res.send('HELLO STUDENT');
+  },
+);
 
 /**
  * SMS

@@ -106,28 +106,28 @@ router.put(
 /**
  * admission
  */
-router.put(
-  '/admission',
-  authenticateStudent,
-  (req, res, next) => {
-    if (
-      req.student.admissionStatus === 'verified'
-      || req.student.admissionStatus === 'completed'
-    ) {
-      res.status(423).send({
-        error: {
-          msg: req.student.admissionStatus === 'verified'
-            ? 'You cannot change your academic detail, as your application have been verified'
-            : 'You cannot change your academic detail, as your admission have been completed',
-        },
-      });
-    } else {
-      next();
-    }
-  },
-  studentAdmissionValidation,
-  studentAdmission,
-);
+// router.put(
+//   '/admission',
+//   authenticateStudent,
+//   (req, res, next) => {
+//     if (
+//       req.student.admissionStatus === 'verified'
+//       || req.student.admissionStatus === 'completed'
+//     ) {
+//       res.status(423).send({
+//         error: {
+//           msg: req.student.admissionStatus === 'verified'
+//             ? 'You cannot change your academic detail, as your application have been verified'
+//             : 'You cannot change your academic detail, as your admission have been completed',
+//         },
+//       });
+//     } else {
+//       next();
+//     }
+//   },
+//   studentAdmissionValidation,
+//   studentAdmission,
+// );
 
 /**
  * Verification documents
@@ -166,6 +166,7 @@ router.post(
   changePasswordValidation,
   changePassword,
 );
+
 
 /**
  * Secure

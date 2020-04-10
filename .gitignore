@@ -82,3 +82,4 @@ uploads/
 # keys
 *.pem
 *.xlsx
+*.sh

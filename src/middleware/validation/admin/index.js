@@ -78,6 +78,7 @@ const {
 const {
   marqueeValidation,
 } = require('./marquee');
+const { updateAcademicDetailValidation } = require('./update_academic_detail');
 
 module.exports = {
   loginValidation,
@@ -118,4 +119,5 @@ module.exports = {
   singleSMSValidation,
   manySMSValidation,
   marqueeValidation,
+  updateAcademicDetailValidation,
 };
